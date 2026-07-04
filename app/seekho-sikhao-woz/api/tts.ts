@@ -4,11 +4,18 @@ const URDU_SCRIPT_RE = /[؀-ۿ]/;
 const ROMAN_URDU_RE = /\b(aaj|kal|abhi|ab|phir|lekin|magar|kyun|kyu|kaise|kaisa|kaisi|kaun|kahan|kab|kya|mein|main|mujhe|mujhko|hum|humein|hume|tum|tumhe|tumhein|aap|aapko|yeh|ye|woh|wo|inka|unka|isse|usse|hai|hain|tha|thi|thay|hoga|hogi|hongay|nahi|nai|nahin|karna|karo|kiya|kiye|jana|gaya|gayi|gaye|aana|aya|ayi|bolna|suno|dekho|samajhna|parhna|likhna|seekhna|sikhna|chahiye|chahta|chahti|chahte|acha|accha|theek|thik|sahi|galat|bohat|bahut|bohot|zyada|ziyada|thora|thoda|toh|sirf|yahan|wahan|idhar|udhar|mera|meri|mere|tera|teri|tere|hamara|tumhara|apna|assalam|assalamu|alaikum|walaikum|shukriya|bhai|behen|dost|dosto|beta|beti|yaar|jaldi|pehle|subah|shaam|pata|maloom|zaroor|shayad|bilkul)\b/i;
 
 async function toUrduScript(text: string): Promise<string> {
-  const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=ur&tl=ur&dt=t&q=${encodeURIComponent(text)}`;
+  // Transliterate Roman Urdu → Urdu script via Google Input Tools. (A translate
+  // ur→ur call is a no-op — it echoes the Roman text back unchanged.) The API
+  // returns ["SUCCESS", [[srcChunk, [candidate, ...]], ...]]; candidates already
+  // carry their own leading whitespace, so segments join with '' not ' '.
+  const url = `https://inputtools.google.com/request?text=${encodeURIComponent(text)}&itc=ur-t-i0-und&num=1&cp=0&cs=1&ie=utf-8&oe=utf-8`;
   const res = await fetch(url, { headers: { 'User-Agent': 'Mozilla/5.0' } });
   if (!res.ok) return text;
   const data = await res.json();
-  return (data[0] as [string, string][]).map(seg => seg[0]).join('');
+  if (!Array.isArray(data) || data[0] !== 'SUCCESS' || !Array.isArray(data[1])) return text;
+  const segments = data[1] as [string, string[]][];
+  const out = segments.map(seg => seg[1]?.[0] ?? seg[0]).join('');
+  return out || text;
 }
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {

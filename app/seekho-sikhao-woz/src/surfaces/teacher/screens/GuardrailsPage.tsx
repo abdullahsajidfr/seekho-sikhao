@@ -24,15 +24,15 @@ export default function GuardrailsPage({ onBack }: Props) {
   return (
     <div className={styles.page}>
       <div className={styles.topBar}>
-        <button className={styles.back} onClick={onBack}>←</button>
+        <button className={styles.back} data-log="teacher:back" onClick={onBack}>←</button>
         <h2 className={styles.title}>AI Configuration</h2>
       </div>
       <div className={styles.body}>
         <section className={styles.section}>
           <h3 className={styles.label}>Response Mode</h3>
           <div className={styles.chipRow}>
-            <button className={`${styles.chip} ${mode === 'direct' ? styles.selected : ''}`} onClick={() => setMode('direct')}>Direct</button>
-            <button className={`${styles.chip} ${mode === 'step-by-step' ? styles.selected : ''}`} onClick={() => setMode('step-by-step')}>Step-by-step</button>
+            <button className={`${styles.chip} ${mode === 'direct' ? styles.selected : ''}`} data-log="teacher:mode-direct" onClick={() => setMode('direct')}>Direct</button>
+            <button className={`${styles.chip} ${mode === 'step-by-step' ? styles.selected : ''}`} data-log="teacher:mode-step-by-step" onClick={() => setMode('step-by-step')}>Step-by-step</button>
           </div>
         </section>
         <section className={styles.section}>
@@ -53,8 +53,8 @@ export default function GuardrailsPage({ onBack }: Props) {
             <input type="file" style={{ display: 'none' }} onChange={handleFile} />
           </label>
         </section>
-        <button className={styles.testBtn} onClick={() => setTestModal(true)}>Test AI Agent</button>
-        <button className={styles.saveBtn} onClick={handleSave}>Save Configuration</button>
+        <button className={styles.testBtn} data-log="teacher:test-ai" onClick={() => setTestModal(true)}>Test AI Agent</button>
+        <button className={styles.saveBtn} data-log="teacher:save-config" onClick={handleSave}>Save Configuration</button>
         {toast && <div className={styles.toast}>Saved ✓</div>}
         {testModal && (
           <div className={styles.overlay}>

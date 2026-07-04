@@ -37,6 +37,7 @@ export default function ComposePanel({
         <label className={styles.checkLabel}>
           <input
             type="checkbox"
+            data-log="wizard:attach-workbook"
             checked={attachWorkbook}
             onChange={(e) => onAttachChange(e.target.checked)}
           />
@@ -45,6 +46,7 @@ export default function ComposePanel({
         <label className={styles.checkLabel}>
           <input
             type="checkbox"
+            data-log="wizard:toggle-thinking"
             checked={showThinking}
             onChange={(e) => onToggleThinking(e.target.checked)}
           />
@@ -59,7 +61,7 @@ export default function ComposePanel({
           onChange={(e) => onWorkbookQChange(e.target.value)}
         />
       )}
-      <button className={styles.sendBtn} onClick={onSend} disabled={!text.trim()}>
+      <button className={styles.sendBtn} data-log="wizard:send-response" onClick={onSend} disabled={!text.trim()}>
         Send Response
       </button>
     </div>

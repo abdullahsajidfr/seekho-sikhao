@@ -5,6 +5,7 @@ import { useLanguage } from '../../context/LanguageContext';
 import { firebaseEnabled } from '../../firebase/config';
 import { archiveCurrentChat, clearCurrentChat, resumePastChat, setWorkbookActive, setShowEndModal } from '../../firebase/session';
 import { logEvent } from '../../firebase/admin';
+import { useLogContext } from '../../lib/autolog';
 import LoginScreen from './screens/LoginScreen';
 import SubjectScreen from './screens/SubjectScreen';
 import InputModeScreen from './screens/InputModeScreen';
@@ -24,6 +25,8 @@ interface Props {
 export default function StudentApp({ roomCode, onExit }: Props) {
   const { session, loading } = useSession(roomCode);
   const { setLanguage } = useLanguage();
+
+  useLogContext(roomCode, session?.adminControl);
 
   const [screen, setScreen] = useState<Screen>('login');
   const [inputMode, setInputMode] = useState<MessageType>('text');

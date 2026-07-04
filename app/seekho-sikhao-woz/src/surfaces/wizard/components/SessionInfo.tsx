@@ -12,7 +12,7 @@ export default function SessionInfo({ roomCode, session, onGenerate }: Props) {
     <div className={styles.panel}>
       <h2 className={styles.heading}>Room</h2>
       {!roomCode ? (
-        <button className={styles.generateBtn} onClick={onGenerate}>
+        <button className={styles.generateBtn} data-log="wizard:generate-room" onClick={onGenerate}>
           Generate Room
         </button>
       ) : (

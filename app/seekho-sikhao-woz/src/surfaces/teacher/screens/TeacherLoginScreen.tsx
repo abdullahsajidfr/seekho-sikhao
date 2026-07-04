@@ -20,7 +20,7 @@ export default function TeacherLoginScreen({ onLogin }: Props) {
         <form className={styles.form} onSubmit={handleSubmit}>
           <input className={styles.input} placeholder="Teacher ID" value={id} onChange={(e) => setId(e.target.value)} />
           <input className={styles.input} type="password" placeholder="Password" value={pw} onChange={(e) => setPw(e.target.value)} />
-          <button className={styles.btn} type="submit">Log In</button>
+          <button className={styles.btn} type="submit" data-log="teacher:login-submit">Log In</button>
         </form>
       </div>
     </div>

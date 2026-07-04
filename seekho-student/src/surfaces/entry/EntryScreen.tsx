@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, Pressable, StyleSheet } from 'react-native';
 import { roomExists } from '../../firebase/session';
+import { logTap } from '../../lib/autolog';
 import { colors, fonts } from '../../theme';
 
 const DIGITS = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '←', '0', '✓'];
@@ -21,6 +22,7 @@ export default function EntryScreen({ onEnter }: Props) {
       setError('');
     } else if (key === '✓') {
       if (code.length !== 4) return;
+      logTap('entry:enter');
       setLoading(true);
       try {
         const exists = await roomExists(code);

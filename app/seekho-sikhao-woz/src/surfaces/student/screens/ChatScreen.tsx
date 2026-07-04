@@ -91,6 +91,7 @@ export default function ChatScreen({ roomCode, subject, inputMode, session, onBa
         className={`${styles.readAloudBtn} ${ttsLoading ? styles.readAloudLoading : ''}`}
         onClick={toggleReadAloud}
         aria-label="Toggle read aloud"
+        data-log="student:read-aloud-toggle"
       >
         <img
           src={readAloud ? '/icons/read-aloud-on.svg' : '/icons/read-aloud-off.svg'}
@@ -102,6 +103,7 @@ export default function ChatScreen({ roomCode, subject, inputMode, session, onBa
         className={styles.menuDotBtn}
         onClick={() => setMenuOpen(true)}
         aria-label="Chat options"
+        data-log="student:chat-menu"
       >
         ···
       </button>
@@ -144,8 +146,8 @@ export default function ChatScreen({ roomCode, subject, inputMode, session, onBa
       {session?.showEndModal && (
         <div className={styles.endPrompt}>
           <span className={styles.endLabel}>Close Chat?</span>
-          <button className={styles.endYes} onClick={async () => { await setShowEndModal(roomCode, false); onCloseChat(chatName || undefined); }}>Yes</button>
-          <button className={styles.endNo}  onClick={() => setShowEndModal(roomCode, false)}>No</button>
+          <button className={styles.endYes} data-log="student:close-chat-yes" onClick={async () => { await setShowEndModal(roomCode, false); onCloseChat(chatName || undefined); }}>Yes</button>
+          <button className={styles.endNo}  data-log="student:close-chat-no" onClick={() => setShowEndModal(roomCode, false)}>No</button>
         </div>
       )}
 

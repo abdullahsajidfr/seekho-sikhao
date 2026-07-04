@@ -4,6 +4,7 @@ import TopBar from '../components/TopBar';
 import { ChatOptionsMenu, RenameModal, DeleteModal } from '../components/overlays';
 import { TypeSquare, MicSquare, CameraSquare } from '../../../components/icons';
 import { renamePastChat, deletePastChat } from '../../../firebase/session';
+import { logTap } from '../../../lib/autolog';
 import { colors, fonts } from '../../../theme';
 import type { MessageType, Subject, PastChat } from '../../../types/session';
 
@@ -68,7 +69,7 @@ export default function InputModeScreen({ roomCode, pastChats = [], onSelect, on
 
         <View style={styles.modes}>
           {MODES.map(({ mode, label, Icon }) => (
-            <Pressable key={mode} style={({ pressed }) => [styles.modeBtn, pressed && styles.pressed]} onPress={() => { log?.(`input_mode:${mode}`); onSelect(mode); }}>
+            <Pressable key={mode} style={({ pressed }) => [styles.modeBtn, pressed && styles.pressed]} onPress={() => { logTap(`student:input-mode-${mode}`); log?.(`input_mode:${mode}`); onSelect(mode); }}>
               <Icon size={53} />
               <Text style={styles.modeLabel}>{label}</Text>
             </Pressable>
@@ -81,7 +82,7 @@ export default function InputModeScreen({ roomCode, pastChats = [], onSelect, on
             <View style={styles.pastList}>
               {pastChats.map((chat) => (
                 <View key={chat.id} style={styles.pastRow}>
-                  <Pressable style={styles.pastItem} onPress={() => onViewPastChat?.(chat)}>
+                  <Pressable style={styles.pastItem} onPress={() => { logTap('student:past-chat'); onViewPastChat?.(chat); }}>
                     <Text style={styles.pastQuestion} numberOfLines={1}>{chat.firstQuestion}</Text>
                   </Pressable>
                   <Text style={styles.pastTime}>{relativeTime(chat.endedAt)}</Text>

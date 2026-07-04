@@ -10,6 +10,7 @@ import WorkbookQuestionCard from '../components/WorkbookQuestionCard';
 import TopBar from '../components/TopBar';
 import { ChatOptionsMenu, RenameModal, DeleteModal } from '../components/overlays';
 import { ReadAloudPill } from '../../../components/icons';
+import { logTap } from '../../../lib/autolog';
 import { colors, fonts } from '../../../theme';
 import type { MessageType, StudentMessageType, Session, Subject } from '../../../types/session';
 
@@ -68,10 +69,10 @@ export default function ChatScreen({ roomCode, subject, inputMode, session, onBa
 
   const rightSlot = (
     <View style={styles.topActions}>
-      <Pressable onPress={toggleReadAloud} accessibilityLabel="Toggle read aloud">
+      <Pressable onPress={() => { logTap('student:read-aloud'); toggleReadAloud(); }} accessibilityLabel="Toggle read aloud">
         <ReadAloudPill label={t('read_aloud')} active={readAloud} />
       </Pressable>
-      <Pressable style={styles.menuDotBtn} onPress={() => setMenuOpen(true)} hitSlop={8} accessibilityLabel="Chat options">
+      <Pressable style={styles.menuDotBtn} onPress={() => { logTap('student:chat-menu'); setMenuOpen(true); }} hitSlop={8} accessibilityLabel="Chat options">
         <Text style={styles.dots}>···</Text>
       </Pressable>
     </View>
@@ -101,7 +102,7 @@ export default function ChatScreen({ roomCode, subject, inputMode, session, onBa
             />
             {msg.workbookQuestion ? (
               <View style={styles.qCardWrap}>
-                <WorkbookQuestionCard question={msg.workbookQuestion} onTry={onOpenWorkbook} />
+                <WorkbookQuestionCard question={msg.workbookQuestion} onTry={() => { logTap('student:try-question'); onOpenWorkbook(); }} />
               </View>
             ) : null}
           </View>
@@ -112,10 +113,10 @@ export default function ChatScreen({ roomCode, subject, inputMode, session, onBa
       {session?.showEndModal ? (
         <View style={styles.endPrompt}>
           <View style={styles.endLabel}><Text style={styles.endLabelText}>Close Chat?</Text></View>
-          <Pressable style={styles.endYes} onPress={async () => { await setShowEndModal(roomCode, false); onCloseChat(chatName || undefined); }}>
+          <Pressable style={styles.endYes} onPress={async () => { logTap('student:close-chat-yes'); await setShowEndModal(roomCode, false); onCloseChat(chatName || undefined); }}>
             <Text style={styles.endBtnText}>Yes</Text>
           </Pressable>
-          <Pressable style={styles.endNo} onPress={() => setShowEndModal(roomCode, false)}>
+          <Pressable style={styles.endNo} onPress={() => { logTap('student:close-chat-no'); setShowEndModal(roomCode, false); }}>
             <Text style={styles.endBtnText}>No</Text>
           </Pressable>
         </View>

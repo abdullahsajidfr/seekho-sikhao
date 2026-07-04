@@ -41,7 +41,7 @@ export default function SmileyometerOverlay({ roomCode, questionNum, adminContro
         <p className={styles.question}>{q.text}</p>
         <div className={styles.faces}>
           {FACES.map((face, i) => (
-            <button key={i} className={styles.faceBtn} onClick={() => handleFace(i + 1)}>
+            <button key={i} className={styles.faceBtn} data-log={`student:smiley-q${questionNum}-face-${i + 1}`} onClick={() => handleFace(i + 1)}>
               {face}
             </button>
           ))}

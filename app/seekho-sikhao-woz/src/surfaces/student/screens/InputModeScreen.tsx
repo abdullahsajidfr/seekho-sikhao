@@ -82,7 +82,7 @@ export default function InputModeScreen({ roomCode, pastChats = [], onSelect, on
 
         <div className={styles.modes}>
           {MODES.map(({ mode, label, icon }) => (
-            <button key={mode} className={styles.modeBtn} onClick={() => { log?.(`input_mode:${mode}`); onSelect(mode); }}>
+            <button key={mode} className={styles.modeBtn} data-log={`student:input-mode-${mode}`} onClick={() => { log?.(`input_mode:${mode}`); onSelect(mode); }}>
               <img src={icon} alt={label} className={styles.modeIcon} />
               <span className={styles.modeLabel}>{label}</span>
             </button>

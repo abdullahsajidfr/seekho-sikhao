@@ -75,9 +75,9 @@ export default function TaskTracker({ roomCode, adminControl }: Props) {
                 <span className={styles.taskTimer}>{formatMs(activeElapsed)}</span>
               )}
               {isActive ? (
-                <button className={styles.endBtn} onClick={() => handleEnd(i + 1)}>End</button>
+                <button className={styles.endBtn} data-log={`admin:task-${i + 1}-end`} onClick={() => handleEnd(i + 1)}>End</button>
               ) : (
-                <button className={styles.startBtn} onClick={() => handleStart(task.id, i + 1)}>Start</button>
+                <button className={styles.startBtn} data-log={`admin:task-${i + 1}-start`} onClick={() => handleStart(task.id, i + 1)}>Start</button>
               )}
             </div>
           );

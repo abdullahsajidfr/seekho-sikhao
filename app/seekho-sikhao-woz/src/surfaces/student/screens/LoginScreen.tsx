@@ -83,12 +83,12 @@ export default function LoginScreen({ onLogin }: Props) {
                   onChange={e => setPw(e.target.value)}
                 />
               </div>
-              <button type="button" className={styles.eyeBtn} onClick={() => setShowPw(v => !v)}>
+              <button type="button" className={styles.eyeBtn} data-log="student:login-password-toggle" onClick={() => setShowPw(v => !v)}>
                 <img src="/icons/eye.svg" alt="show/hide" />
               </button>
             </div>
 
-            <button className={styles.loginBtn} type="submit">Log In</button>
+            <button className={styles.loginBtn} type="submit" data-log="student:login-submit">Log In</button>
           </form>
         </div>
       </div>

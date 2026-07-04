@@ -64,7 +64,7 @@ export default function WorkbookScreen({ roomCode, subject, session, inputMode, 
         showBack
         onBack={onBack}
         rightSlot={
-          <button className={`${styles.readAloudBtn} ${ttsLoading ? styles.readAloudLoading : ''}`} onClick={toggleReadAloud} aria-label="Toggle read aloud">
+          <button className={`${styles.readAloudBtn} ${ttsLoading ? styles.readAloudLoading : ''}`} data-log="student:workbook-read-aloud-toggle" onClick={toggleReadAloud} aria-label="Toggle read aloud">
             <img
               src={readAloud ? '/icons/read-aloud-on.svg' : '/icons/read-aloud-off.svg'}
               alt=""
@@ -98,6 +98,7 @@ export default function WorkbookScreen({ roomCode, subject, session, inputMode, 
               className={styles.closeBtn}
               onClick={() => { onBack(); setWorkbookActive(roomCode, false); }}
               aria-label="Close workbook"
+              data-log="student:workbook-close"
             >
               ✕
             </button>
@@ -108,10 +109,10 @@ export default function WorkbookScreen({ roomCode, subject, session, inputMode, 
           </div>
 
           <div className={styles.actions}>
-            <button className={styles.btnClear} onClick={() => { canvasRef.current?.clear(); clearWorkbook(roomCode); }}>
+            <button className={styles.btnClear} data-log="student:workbook-clear" onClick={() => { canvasRef.current?.clear(); clearWorkbook(roomCode); }}>
               Clear
             </button>
-            <button className={styles.btnHint} onClick={() => { log?.('workbook_hint_tapped'); requestHint(roomCode); }}>
+            <button className={styles.btnHint} data-log="student:workbook-hint" onClick={() => { log?.('workbook_hint_tapped'); requestHint(roomCode); }}>
               <img src="/icons/zap.svg" alt="" className={styles.zapIcon} />
               Hint
             </button>
@@ -119,6 +120,7 @@ export default function WorkbookScreen({ roomCode, subject, session, inputMode, 
               className={styles.btnSubmit}
               disabled={submitted || submitting}
               onClick={handleSubmit}
+              data-log="student:workbook-submit"
             >
               {submitting ? 'Sending…' : submitted ? 'Submitted' : 'Submit'}
             </button>

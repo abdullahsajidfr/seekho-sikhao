@@ -37,6 +37,7 @@ export default function SubjectScreen({ roomCode, studentName, onSelect }: Props
         <button
           className={styles.settingsBtn}
           aria-label="Settings"
+          data-log="student:settings"
           onClick={() => setShowSettings(true)}
         >
           <img src="/icons/settings.svg" alt="" />
@@ -61,7 +62,7 @@ export default function SubjectScreen({ roomCode, studentName, onSelect }: Props
       {showSettings && createPortal(
         <div className={styles.overlayBackdrop} onClick={() => setShowSettings(false)}>
           <div className={styles.settingsCard} onClick={e => e.stopPropagation()}>
-            <button className={styles.settingsItem} onClick={handleLogOut}>
+            <button className={styles.settingsItem} data-log="student:logout" onClick={handleLogOut}>
               <svg className={styles.settingsIcon} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
                 <polyline points="16 17 21 12 16 7"/>

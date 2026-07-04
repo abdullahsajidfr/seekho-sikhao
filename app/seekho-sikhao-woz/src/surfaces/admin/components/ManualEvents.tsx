@@ -51,6 +51,7 @@ export default function ManualEvents({ roomCode, adminControl }: Props) {
           <button
             key={label}
             className={`${styles.quickBtn} ${flashedLabel === label ? styles.flashed : ''}`}
+            data-log={`admin:manual-${label.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')}`}
             onClick={() => handleQuick(label)}
           >
             {label}
@@ -67,6 +68,7 @@ export default function ManualEvents({ roomCode, adminControl }: Props) {
         />
         <button
           className={styles.noteBtn}
+          data-log="admin:manual-note-send"
           onClick={handleNote}
           disabled={!noteText.trim()}
         >

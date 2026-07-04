@@ -1,0 +1,11 @@
+{
+  "rules": {
+    ".read": true,
+    ".write": true,
+    "sessions": {
+      "$roomCode": {
+        ".indexOn": ["adminControl/sessionPhase"]
+      }
+    }
+  }
+}

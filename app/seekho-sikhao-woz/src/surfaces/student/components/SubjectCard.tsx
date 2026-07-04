@@ -34,6 +34,7 @@ export default function SubjectCard({ subject, grade = 'Grade 4, Section A', onC
     <button
       className={styles.card}
       style={{ background: cfg.bg, borderColor: cfg.border }}
+      data-log={`student:subject-${subject.toLowerCase().replace(/\s+/g, '-')}`}
       onClick={onClick}
     >
       <div className={styles.iconBox} style={{ background: cfg.iconBg }}>

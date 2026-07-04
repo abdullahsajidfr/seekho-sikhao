@@ -16,7 +16,7 @@ export default function StudentProfilePage({ studentId, onBack }: Props) {
   return (
     <div className={styles.page}>
       <div className={styles.topBar}>
-        <button className={styles.back} onClick={onBack}>←</button>
+        <button className={styles.back} data-log="teacher:back" onClick={onBack}>←</button>
         <h2 className={styles.title}>{student.name}</h2>
       </div>
       <div className={styles.profile}>

@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, Pressable, Modal, StyleSheet } from 'react-native';
 import { endSession, setShowEndModal } from '../../../firebase/session';
+import { logTap } from '../../../lib/autolog';
 import { useLanguage } from '../../../context/LanguageContext';
 import { colors, fonts } from '../../../theme';
 
@@ -14,11 +15,13 @@ export default function EndSessionModal({ roomCode, onLoggedOut, onCancel }: Pro
   const { t } = useLanguage();
 
   async function handleLogOut() {
+    logTap('student:end-session-confirm');
     await endSession(roomCode);
     onLoggedOut();
   }
 
   async function handleCancel() {
+    logTap('student:end-session-cancel');
     await setShowEndModal(roomCode, false);
     onCancel?.();
   }

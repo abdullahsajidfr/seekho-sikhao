@@ -31,6 +31,7 @@ export default function SmileyometerDelivery({ roomCode, adminControl, session }
         key={qNum}
         className={`${styles.qBtn} ${isAnswered ? styles.answered : ''} ${isShowing ? styles.showing : ''}`}
         disabled={isShowing}
+        data-log={`admin:smiley-send-q${qNum}`}
         onClick={() => setSmileyometerQuestion(roomCode, qNum)}
       >
         Q{qNum}{isAnswered && <span className={styles.check}> ✓</span>}

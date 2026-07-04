@@ -10,6 +10,7 @@ import ThinkingDots from '../components/ThinkingDots';
 import ChatInputBar from '../components/ChatInputBar';
 import TopBar from '../components/TopBar';
 import { ReadAloudPill, Zap } from '../../../components/icons';
+import { logTap } from '../../../lib/autolog';
 import { colors, fonts } from '../../../theme';
 import type { MessageType, StudentMessageType, Session, Subject } from '../../../types/session';
 
@@ -46,6 +47,7 @@ export default function WorkbookScreen({ roomCode, subject, session, inputMode, 
   }
 
   function handleClose() {
+    logTap('student:workbook-close');
     setWorkbookActive(roomCode, false);
     onBack();
   }
@@ -71,7 +73,7 @@ export default function WorkbookScreen({ roomCode, subject, session, inputMode, 
         showBack
         onBack={onBack}
         rightSlot={
-          <Pressable onPress={toggleReadAloud} accessibilityLabel="Toggle read aloud">
+          <Pressable onPress={() => { logTap('student:read-aloud'); toggleReadAloud(); }} accessibilityLabel="Toggle read aloud">
             <ReadAloudPill label={t('read_aloud')} active={readAloud} />
           </Pressable>
         }
@@ -119,14 +121,14 @@ export default function WorkbookScreen({ roomCode, subject, session, inputMode, 
           </View>
 
           <View style={styles.actions}>
-            <Pressable style={[styles.btn, styles.btnClear]} onPress={() => { canvasRef.current?.clear(); clearWorkbook(roomCode); }}>
+            <Pressable style={[styles.btn, styles.btnClear]} onPress={() => { logTap('student:workbook-clear'); canvasRef.current?.clear(); clearWorkbook(roomCode); }}>
               <Text style={styles.btnClearText}>{t('workbook_clear')}</Text>
             </Pressable>
-            <Pressable style={[styles.btn, styles.btnHint]} onPress={() => { log?.('workbook_hint_tapped'); requestHint(roomCode); }}>
+            <Pressable style={[styles.btn, styles.btnHint]} onPress={() => { logTap('student:workbook-hint'); log?.('workbook_hint_tapped'); requestHint(roomCode); }}>
               <Zap width={16} height={17} color="#FF7B00" />
               <Text style={styles.btnHintText}>{t('hint')}</Text>
             </Pressable>
-            <Pressable style={[styles.btn, styles.btnSubmit, (submitted || submitting) && styles.btnDisabled]} disabled={submitted || submitting} onPress={handleSubmit}>
+            <Pressable style={[styles.btn, styles.btnSubmit, (submitted || submitting) && styles.btnDisabled]} disabled={submitted || submitting} onPress={() => { logTap('student:workbook-submit'); handleSubmit(); }}>
               <Text style={styles.btnSubmitText}>{submitting ? t('sending') : submitted ? 'Submitted' : t('workbook_submit')}</Text>
             </Pressable>
           </View>

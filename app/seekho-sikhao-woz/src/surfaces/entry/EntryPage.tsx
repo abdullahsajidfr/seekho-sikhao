@@ -48,7 +48,12 @@ export default function EntryPage() {
       {error && <p className={styles.error}>{error}</p>}
       <div className={styles.pad}>
         {DIGITS.map((k) => (
-          <button key={k} className={styles.key} onClick={() => handleKey(k)}>
+          <button
+            key={k}
+            className={styles.key}
+            data-log={k === '←' ? 'entry:clear' : k === '✓' ? 'entry:submit' : `entry:keypad-${k}`}
+            onClick={() => handleKey(k)}
+          >
             {k}
           </button>
         ))}

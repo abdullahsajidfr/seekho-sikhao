@@ -12,7 +12,7 @@ export default function TopBar({ title, showBack, onBack, rightSlot }: Props) {
     <div className={styles.bar}>
       <div className={styles.left}>
         {showBack && (
-          <button className={styles.backBtn} onClick={onBack} aria-label="Go back">
+          <button className={styles.backBtn} onClick={onBack} aria-label="Go back" data-log="student:back">
             <svg className={styles.backIcon} viewBox="0 0 16 16" fill="none" aria-hidden="true">
               <path
                 d="M3.825 9L9.425 14.6L8 16L0 8L8 0L9.425 1.4L3.825 7H16V9H3.825Z"

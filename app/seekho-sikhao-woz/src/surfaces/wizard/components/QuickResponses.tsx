@@ -169,7 +169,7 @@ export default function QuickResponses({ subject, onSelect }: Props) {
       <h2 className={styles.heading}>Quick Responses</h2>
       <div className={styles.list}>
         {GENERAL.map(q => (
-          <button key={q.label} className={styles.chip} onClick={() => onSelect(fmt(q))}>
+          <button key={q.label} className={styles.chip} data-log={`wizard:quick-${q.label.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')}`} onClick={() => onSelect(fmt(q))}>
             {q.label}
           </button>
         ))}
@@ -179,6 +179,7 @@ export default function QuickResponses({ subject, onSelect }: Props) {
         <div key={section.title} className={styles.section}>
           <button
             className={`${styles.sectionToggle} ${openSection === section.title ? styles.sectionOpen : ''}`}
+            data-log={`wizard:section-${section.subject.toLowerCase()}`}
             onClick={() => toggle(section.title)}
           >
             <span>{section.title}</span>
@@ -187,7 +188,7 @@ export default function QuickResponses({ subject, onSelect }: Props) {
           {openSection === section.title && (
             <div className={styles.taskList}>
               {section.items.map(q => (
-                <button key={q.label} className={styles.taskChip} onClick={() => onSelect(fmt(q))}>
+                <button key={q.label} className={styles.taskChip} data-log={`wizard:quick-${q.label.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')}`} onClick={() => onSelect(fmt(q))}>
                   {q.label}
                 </button>
               ))}

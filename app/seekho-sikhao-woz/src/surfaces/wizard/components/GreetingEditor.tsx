@@ -38,7 +38,7 @@ export default function GreetingEditor({ greetings, onChange, onSave }: Props) {
           </label>
         ))}
       </div>
-      <button className={styles.saveBtn} onClick={handleSave}>
+      <button className={styles.saveBtn} data-log="wizard:save-greetings" onClick={handleSave}>
         {saved ? 'Saved ✓' : 'Save Greetings'}
       </button>
     </div>

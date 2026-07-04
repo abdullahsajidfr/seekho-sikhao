@@ -91,7 +91,20 @@ The **web app auto-captures every interaction** across all four surfaces via a g
 | `keydown` | Enter in a field | `submit:0000=5678` |
 | `submit` | form submit | `submit:Log In form` |
 
-Labels are derived from `data-log` / `aria-label` / text / placeholder, so they're human-readable out of the box. In dev, every captured event also prints `console.debug('[autolog]', kind, label, target)`. Logging is fire-and-forget and no-ops entirely when Firebase env vars are absent (demo mode). Hand-placed semantic events (`screen:*`, `task:*`, `smileyometer:*`) still fire alongside the auto-capture.
+Key interactive elements carry explicit `data-log` attributes (`<surface>:<action>`, e.g. `wizard:generate-room`, `student:subject-math`), which the logger prefers over derived text — so labels are stable and language-independent. In dev, every captured event also prints `console.debug('[autolog]', kind, label, target)`. Logging is fire-and-forget and no-ops entirely when Firebase env vars are absent (demo mode). Hand-placed semantic events (`screen:*`, `task:*`, `smileyometer:*`) still fire alongside the auto-capture.
+
+The **Expo student app** mirrors the same schema and label vocabulary via `seekho-student/src/lib/autolog.ts`: navigation is captured by `NavigationContainer`'s `onStateChange`, and taps/inputs are logged from the shared interactive components (React Native has no DOM to delegate to).
+
+### Firebase backend
+
+The apps point at the **`seekho-sikhao`** Firebase project (Realtime Database in `us-central1`). RTDB security rules live in `app/seekho-sikhao-woz/database.rules.json` and deploy with:
+
+```bash
+cd app/seekho-sikhao-woz
+npx firebase-tools deploy --only database   # requires `firebase login`
+```
+
+Firebase **Storage** (used only for student photo uploads, not for metrics) must be enabled once via the console — *Build → Storage → Get Started* — after which `storage.rules` deploys the same way (`--only storage`). Event logging and all session data work on RTDB alone without Storage.
 
 ## Security note
 

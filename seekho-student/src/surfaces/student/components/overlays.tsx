@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, Pressable, TextInput, Modal, StyleSheet } from 'react-native';
 import { RenameIcon, DeleteIcon, LogOutIcon } from '../../../components/icons';
+import { logTap } from '../../../lib/autolog';
 import { colors, fonts } from '../../../theme';
 
 const shadow = {
@@ -26,12 +27,12 @@ export function ChatOptionsMenu({ onRename, onDelete, onClose }: { onRename: () 
   return (
     <Backdrop onPress={onClose}>
       <View style={[styles.menuCard, shadow]}>
-        <Pressable style={styles.menuItem} onPress={onRename}>
+        <Pressable style={styles.menuItem} onPress={() => { logTap('student:chat-rename'); onRename(); }}>
           <RenameIcon size={24} color="#3A3A3A" />
           <Text style={styles.menuText}>Rename Chat</Text>
         </Pressable>
         <View style={styles.menuDivider} />
-        <Pressable style={styles.menuItem} onPress={onDelete}>
+        <Pressable style={styles.menuItem} onPress={() => { logTap('student:chat-delete'); onDelete(); }}>
           <DeleteIcon size={24} color="#3A3A3A" />
           <Text style={styles.menuText}>Delete Chat</Text>
         </Pressable>
@@ -60,7 +61,7 @@ export function RenameModal({ initial, onCancel, onSave }: { initial: string; on
         />
         <View style={styles.modalActions}>
           <Pressable style={[styles.pill, styles.pillCancel]} onPress={onCancel}><Text style={styles.pillCancelText}>Cancel</Text></Pressable>
-          <Pressable style={[styles.pill, styles.pillConfirm, !value.trim() && styles.pillDisabled]} disabled={!value.trim()} onPress={() => onSave(value.trim())}>
+          <Pressable style={[styles.pill, styles.pillConfirm, !value.trim() && styles.pillDisabled]} disabled={!value.trim()} onPress={() => { logTap('student:chat-rename-save'); onSave(value.trim()); }}>
             <Text style={styles.pillConfirmText}>Save</Text>
           </Pressable>
         </View>
@@ -79,7 +80,7 @@ export function DeleteModal({ busy, onCancel, onDelete }: { busy?: boolean; onCa
         <Text style={styles.modalBody}>Are you sure you want to{'\n'}delete this chat?</Text>
         <View style={styles.modalActions}>
           <Pressable style={[styles.pill, styles.pillCancel]} onPress={onCancel}><Text style={styles.pillCancelText}>Cancel</Text></Pressable>
-          <Pressable style={[styles.pill, styles.pillDelete, busy && styles.pillDisabled]} disabled={busy} onPress={onDelete}>
+          <Pressable style={[styles.pill, styles.pillDelete, busy && styles.pillDisabled]} disabled={busy} onPress={() => { logTap('student:chat-delete-confirm'); onDelete(); }}>
             <Text style={styles.pillDeleteText}>Delete</Text>
           </Pressable>
         </View>
@@ -93,7 +94,7 @@ export function SettingsMenu({ onLogOut, onClose }: { onLogOut: () => void; onCl
   return (
     <Backdrop onPress={onClose}>
       <View style={[styles.settingsCard, shadow]}>
-        <Pressable style={styles.settingsItem} onPress={onLogOut}>
+        <Pressable style={styles.settingsItem} onPress={() => { logTap('student:logout'); onLogOut(); }}>
           <LogOutIcon size={26} color="#3A3A3A" />
           <Text style={styles.settingsText}>Log Out</Text>
         </Pressable>

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, Pressable, StyleSheet } from 'react-native';
 import { Logo, Eye, EyeOff } from '../../../components/icons';
+import { logSubmit } from '../../../lib/autolog';
 import { colors, fonts } from '../../../theme';
 
 interface Props {
@@ -13,7 +14,10 @@ export default function LoginScreen({ onLogin }: Props) {
   const [showPw, setShowPw] = useState(false);
 
   function handleSubmit() {
-    if (id.trim() && pw.trim()) onLogin(id.trim());
+    if (id.trim() && pw.trim()) {
+      logSubmit('student:login-name', id.trim());
+      onLogin(id.trim());
+    }
   }
 
   return (

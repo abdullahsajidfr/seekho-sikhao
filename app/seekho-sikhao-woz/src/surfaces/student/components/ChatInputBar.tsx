@@ -122,10 +122,10 @@ export default function ChatInputBar({ roomCode, initialMode, onSend, onInputFoc
             <p className={styles.waveInterim}>{interim}</p>
           )}
           <div className={styles.waveActions}>
-            <button className={styles.waveDeleteBtn} onClick={() => { stop(); reset(); }} aria-label="Cancel recording">
+            <button className={styles.waveDeleteBtn} data-log="student:voice-cancel" onClick={() => { stop(); reset(); }} aria-label="Cancel recording">
               <img src="/icons/delete.png" alt="" className={styles.waveDeleteIcon} />
             </button>
-            <button className={styles.waveSendBtn} onClick={handleVoiceSend} aria-label="Send">
+            <button className={styles.waveSendBtn} data-log="student:send-voice" onClick={handleVoiceSend} aria-label="Send">
               <img src="/icons/send.svg" alt="" className={styles.waveSendIcon} />
             </button>
           </div>
@@ -162,6 +162,7 @@ export default function ChatInputBar({ roomCode, initialMode, onSend, onInputFoc
               className={styles.iconBtn}
               onClick={handleMicClick}
               aria-label="Voice input"
+              data-log="student:mic"
             >
               <img src="/icons/mic.svg" alt="" className={styles.iconImg} />
             </button>
@@ -170,6 +171,7 @@ export default function ChatInputBar({ roomCode, initialMode, onSend, onInputFoc
               onClick={() => setShowCamera(true)}
               disabled={busy}
               aria-label="Camera"
+              data-log="student:camera"
             >
               <img src="/icons/camera.svg" alt="" className={styles.iconImgCamera} />
             </button>
@@ -179,6 +181,7 @@ export default function ChatInputBar({ roomCode, initialMode, onSend, onInputFoc
             onClick={handleSend}
             disabled={!text.trim() && !hasTranscript}
             aria-label="Send"
+            data-log="student:send"
           >
             <img src="/icons/send.svg" alt="" className={styles.sendIcon} />
           </button>

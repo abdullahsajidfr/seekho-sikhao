@@ -4,6 +4,7 @@ import { setSubject as fbSetSubject } from '../../../firebase/session';
 import SubjectCard from '../components/SubjectCard';
 import { SettingsMenu } from '../components/overlays';
 import { Logo, SettingsGear } from '../../../components/icons';
+import { logTap } from '../../../lib/autolog';
 import { colors, fonts } from '../../../theme';
 import type { Subject } from '../../../types/session';
 
@@ -28,7 +29,7 @@ export default function SubjectScreen({ roomCode, studentName, onSelect, onLogou
     <View style={styles.page}>
       <View style={styles.topBar}>
         <Logo height={40} />
-        <Pressable onPress={() => setShowSettings(true)} hitSlop={10} accessibilityLabel="Settings">
+        <Pressable onPress={() => { logTap('student:settings'); setShowSettings(true); }} hitSlop={10} accessibilityLabel="Settings">
           <SettingsGear width={32} height={32} color={colors.textMuted} />
         </Pressable>
       </View>

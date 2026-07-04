@@ -68,6 +68,7 @@ export default function SessionControl({ roomCode, adminControl }: Props) {
         <input
           className={styles.input}
           placeholder="e.g. Ali"
+          data-log="admin:session-student-name"
           value={studentName}
           onChange={e => setStudentName(e.target.value)}
           onBlur={handleInfoBlur}
@@ -79,6 +80,7 @@ export default function SessionControl({ roomCode, adminControl }: Props) {
         <span className={styles.label}>Grade</span>
         <select
           className={styles.select}
+          data-log="admin:session-grade"
           value={grade}
           onChange={e => setGrade(e.target.value)}
           onBlur={handleInfoBlur}
@@ -105,6 +107,7 @@ export default function SessionControl({ roomCode, adminControl }: Props) {
 
       <button
         className={styles.startBtn}
+        data-log="admin:session-start"
         onClick={handleStart}
         disabled={isRunning || isDone || !studentName.trim()}
       >
@@ -113,6 +116,7 @@ export default function SessionControl({ roomCode, adminControl }: Props) {
 
       <button
         className={styles.endBtn}
+        data-log="admin:session-end"
         onClick={() => setShowConfirm(true)}
         disabled={!isRunning}
       >
@@ -126,8 +130,8 @@ export default function SessionControl({ roomCode, adminControl }: Props) {
               End session and export data to Google Sheets?
             </p>
             <div className={styles.confirmActions}>
-              <button className={styles.confirmCancel} onClick={() => setShowConfirm(false)}>Cancel</button>
-              <button className={styles.confirmOk} onClick={handleEnd}>End Session</button>
+              <button className={styles.confirmCancel} data-log="admin:session-end-cancel" onClick={() => setShowConfirm(false)}>Cancel</button>
+              <button className={styles.confirmOk} data-log="admin:session-end-confirm" onClick={handleEnd}>End Session</button>
             </div>
           </div>
         </div>,

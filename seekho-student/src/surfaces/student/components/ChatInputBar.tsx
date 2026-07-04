@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, TextInput, Pressable, Image, Animated, Easing, StyleSheet } from 'react-native';
 import { useSpeechRecognition } from '../../../hooks/useSpeechRecognition';
+import { logTap, logInput } from '../../../lib/autolog';
 import { uploadPhoto } from '../../../firebase/storage';
 import { useLanguage } from '../../../context/LanguageContext';
 import CameraScreen from './CameraScreen';
@@ -78,9 +79,13 @@ export default function ChatInputBar({ roomCode, initialMode, onSend, onInputFoc
   function handleSend() {
     if (busy) return;
     if (text.trim()) {
+      logTap('student:send');
+      logInput('student:chat-message', text.trim());
       onSend({ text: text.trim(), type: 'text' });
       setText('');
     } else if (hasTranscript) {
+      logTap('student:send');
+      logInput('student:chat-message', transcript);
       onSend({ text: transcript, type: 'voice', voiceTranscript: transcript });
       reset();
     }
@@ -90,6 +95,8 @@ export default function ChatInputBar({ roomCode, initialMode, onSend, onInputFoc
     // No on-device STT in Expo Go — send an (empty-transcript) voice message so
     // the WoZ flow proceeds; the wizard supplies the reply. See useSpeechRecognition.
     const textToSend = transcript || interim || '';
+    logTap('student:send');
+    if (textToSend) logInput('student:chat-message', textToSend);
     stop();
     onSend({ text: textToSend, type: 'voice', voiceTranscript: textToSend });
     reset();
@@ -161,10 +168,10 @@ export default function ChatInputBar({ roomCode, initialMode, onSend, onInputFoc
       {!isListening ? (
         <View style={styles.actions}>
           <View style={styles.leftIcons}>
-            <Pressable style={styles.iconBtn} onPress={() => start()} accessibilityLabel="Voice input">
+            <Pressable style={styles.iconBtn} onPress={() => { logTap('student:mic'); start(); }} accessibilityLabel="Voice input">
               <MicIcon width={26} height={32} color={colors.textPrimary} />
             </Pressable>
-            <Pressable style={styles.iconBtn} onPress={() => setShowCamera(true)} disabled={busy} accessibilityLabel="Camera">
+            <Pressable style={styles.iconBtn} onPress={() => { logTap('student:camera'); setShowCamera(true); }} disabled={busy} accessibilityLabel="Camera">
               <CameraIcon width={44} height={44} color={colors.textPrimary} />
             </Pressable>
           </View>

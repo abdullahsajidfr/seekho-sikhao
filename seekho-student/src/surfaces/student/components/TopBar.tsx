@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, Pressable, StyleSheet } from 'react-native';
 import { BackArrow } from '../../../components/icons';
+import { logTap } from '../../../lib/autolog';
 import { colors, fonts } from '../../../theme';
 
 interface Props {
@@ -15,7 +16,7 @@ export default function TopBar({ title, showBack, onBack, rightSlot }: Props) {
     <View style={styles.bar}>
       <View style={styles.left}>
         {showBack ? (
-          <Pressable style={styles.backBtn} onPress={onBack} hitSlop={8} accessibilityLabel="Go back">
+          <Pressable style={styles.backBtn} onPress={() => { logTap('student:back'); onBack?.(); }} hitSlop={8} accessibilityLabel="Go back">
             <BackArrow width={22} height={22} color={colors.textPrimary} />
             {title ? <Text style={styles.backLabel}>{title}</Text> : null}
           </Pressable>

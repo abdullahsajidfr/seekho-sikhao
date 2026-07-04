@@ -1,0 +1,11 @@
+rules_version = '2';
+
+// Open read/write for the WoZ testing period (no Firebase Auth is used — see
+// the spec). DO NOT ship this to production; lock down before any real launch.
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /{allPaths=**} {
+      allow read, write: if true;
+    }
+  }
+}

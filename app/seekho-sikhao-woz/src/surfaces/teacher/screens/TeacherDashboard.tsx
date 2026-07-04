@@ -11,7 +11,7 @@ export default function TeacherDashboard({ onSelectClass, onGuardrails }: Props)
     <div className={styles.page}>
       <div className={styles.topBar}>
         <h1 className={styles.appName}>Seekho Sikhao</h1>
-        <button className={styles.configBtn} onClick={onGuardrails}>AI Configuration</button>
+        <button className={styles.configBtn} data-log="teacher:nav-ai-config" onClick={onGuardrails}>AI Configuration</button>
       </div>
       <div className={styles.welcome}>
         <h2 className={styles.greeting}>Welcome back, Teacher!</h2>
@@ -24,7 +24,7 @@ export default function TeacherDashboard({ onSelectClass, onGuardrails }: Props)
       <h3 className={styles.sectionTitle}>Your Classes</h3>
       <div className={styles.classList}>
         {CLASSES.map((cls) => (
-          <button key={cls.id} className={styles.classCard} onClick={() => onSelectClass(cls.id)}>
+          <button key={cls.id} className={styles.classCard} data-log={`teacher:class-${cls.id}`} onClick={() => onSelectClass(cls.id)}>
             <div>
               <div className={styles.className}>{cls.name}</div>
               <div className={styles.classMeta}>{cls.students} students · {cls.active} active · {cls.struggling} struggling</div>

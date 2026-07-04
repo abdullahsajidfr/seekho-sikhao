@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, Pressable, StyleSheet } from 'react-native';
 import { MathIcon, ScienceIcon, IslamiyatIcon, SocialIcon } from '../../../components/icons';
+import { logTap } from '../../../lib/autolog';
 import { fonts } from '../../../theme';
 import type { Subject } from '../../../types/session';
 
@@ -35,7 +36,7 @@ export default function SubjectCard({ subject, grade = 'Grade 4, Section A', onP
   return (
     <Pressable
       style={({ pressed }) => [styles.card, { backgroundColor: cfg.bg, borderColor: cfg.border }, pressed && styles.pressed]}
-      onPress={onPress}
+      onPress={() => { logTap(`student:subject-${subject.toLowerCase().replace(/\s+/g, '-')}`); onPress(); }}
     >
       {cfg.glyph === 'math' && <MathIcon size={34} />}
       {cfg.glyph === 'science' && <ScienceIcon size={34} />}

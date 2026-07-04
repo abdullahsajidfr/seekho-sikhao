@@ -55,6 +55,7 @@ export default function SessionControls({ roomCode, session, onReset, onToggleLa
               <button
                 className={`${styles.markBtn} ${styles.wrong}`}
                 disabled={!answerText.trim()}
+                data-log="wizard:mark-wrong"
                 onClick={() => handleMark(false)}
               >
                 ✗ Wrong
@@ -62,6 +63,7 @@ export default function SessionControls({ roomCode, session, onReset, onToggleLa
               <button
                 className={`${styles.markBtn} ${styles.correct}`}
                 disabled={!answerText.trim()}
+                data-log="wizard:mark-correct"
                 onClick={() => handleMark(true)}
               >
                 ✓ Correct
@@ -71,9 +73,10 @@ export default function SessionControls({ roomCode, session, onReset, onToggleLa
         </div>
       )}
 
-      <button className={styles.btn} onClick={onReset} disabled={!roomCode}>Reset Session</button>
+      <button className={styles.btn} data-log="wizard:reset-session" onClick={onReset} disabled={!roomCode}>Reset Session</button>
       <button
         className={styles.btn}
+        data-log="wizard:end-chat"
         onClick={() => roomCode && setShowEndModal(roomCode, true)}
         disabled={!roomCode || !session?.chatHistory}
       >
@@ -81,6 +84,7 @@ export default function SessionControls({ roomCode, session, onReset, onToggleLa
       </button>
       <button
         className={`${styles.btn} ${workbookActive ? styles.active : ''}`}
+        data-log="wizard:toggle-workbook"
         onClick={() => roomCode && setWorkbookActive(roomCode, !workbookActive)}
         disabled={!roomCode}
       >
@@ -88,12 +92,13 @@ export default function SessionControls({ roomCode, session, onReset, onToggleLa
       </button>
       <button
         className={styles.btn}
+        data-log="wizard:clear-workbook"
         onClick={() => roomCode && clearWorkbook(roomCode)}
         disabled={!roomCode || !workbookActive}
       >
         Clear Workbook
       </button>
-      <button className={styles.btn} onClick={onToggleLanguage} disabled={!roomCode}>
+      <button className={styles.btn} data-log="wizard:lang-toggle" onClick={onToggleLanguage} disabled={!roomCode}>
         Lang: {session?.language === 'ur' ? 'Urdu → EN' : 'EN → Urdu'}
       </button>
     </div>

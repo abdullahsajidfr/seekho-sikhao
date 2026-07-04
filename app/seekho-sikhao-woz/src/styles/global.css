@@ -1,0 +1,107 @@
+/* Fonts are loaded via <link> in index.html (Fredoka / Dongle / Noto Nastaliq Urdu). */
+
+:root {
+  /* Colours */
+  --color-primary:        #2ABAF2;
+  --color-bg-1:           #FFFBF7;
+  --color-bg-chat:        #FFFAF4;
+  --color-bg-2:           #FFFFFF;
+  --color-user-bubble:    #F5F5F5;
+  --color-ai-bubble:      #FFFFFF;
+  --color-feedback-green: #2AF28B;
+  --color-feedback-red:   #F45858;
+  --color-text-primary:   #1A1A1A;
+  --color-text-secondary: #FFFFFF;
+  --color-text-muted:     #444444;
+  --color-text-muted-2:   #A1A1A1;
+  --color-border:         #D1E8DC;
+  --color-dark-1:         #1A1A1A;
+  --color-dark-2:         #222222;
+
+  /* Typography */
+  --font-heading: 'Fredoka', sans-serif;
+  --font-body:    'Dongle', sans-serif;
+
+  --text-display: 57px;
+  --text-h1:      45px;
+  --text-h2:      36px;
+  --text-h3:      32px;
+  --text-h4:      24px;
+  --text-h5:      24px;
+  --text-body-xl: 32px;
+  --text-body-lg: 22px;
+  --text-body:    16px;
+  --text-body-sm: 14px;
+  --text-caption: 12px;
+
+  /* Spacing (8pt grid) */
+  --space-1: 8px;
+  --space-2: 16px;
+  --space-3: 24px;
+  --space-4: 32px;
+  --space-6: 48px;
+  --space-8: 64px;
+
+  /* Border radius */
+  --radius-card:  14px;
+  --radius-pill:  999px;
+  --radius-modal: 20px;
+  --radius-input: 12px;
+  --radius-btn:   8px;
+
+  /* Elevation */
+  --shadow-card: 0px 4px 6px rgba(0, 0, 0, 0.1), 0px 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body, #root {
+  height: 100%;
+  background: var(--color-bg-1);
+  font-family: var(--font-body);
+  color: var(--color-text-primary);
+  /* iPad kiosk polish: no blue tap flash, no double-tap zoom, no rubber-band */
+  -webkit-tap-highlight-color: transparent;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  touch-action: manipulation;
+  overscroll-behavior: none;
+}
+
+/* App-like feel: text is not selectable except inside real inputs. */
+body {
+  -webkit-user-select: none;
+  user-select: none;
+}
+input, textarea, [contenteditable="true"] {
+  -webkit-user-select: text;
+  user-select: text;
+}
+
+/* Media should never be draggable in a kiosk. */
+img, svg { -webkit-user-drag: none; user-drag: none; }
+
+/* Inherit the app font on form controls / buttons. */
+button, input, textarea, select {
+  font-family: inherit;
+  color: inherit;
+}
+button { touch-action: manipulation; }
+
+/* Urdu override */
+html[lang="ur"] {
+  font-family: 'Noto Nastaliq Urdu', var(--font-body);
+}
+
+/* iPad: disable scroll bounce and prevent zoom. Top bars stay full-bleed;
+   safe-area insets are absorbed by the scroll/input regions that need them. */
+html {
+  overflow: hidden;
+  position: fixed;
+  inset: 0;
+  width: 100%;
+}

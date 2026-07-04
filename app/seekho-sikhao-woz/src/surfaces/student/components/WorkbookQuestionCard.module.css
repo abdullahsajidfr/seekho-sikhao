@@ -1,0 +1,54 @@
+/* Yellow card matching Figma Question Card v2 */
+.card {
+  background: #FFF9DE;
+  border-radius: 16px;
+  padding: 8px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 260px;
+  height: 72px;
+}
+
+.prompt {
+  font-family: 'Dongle', sans-serif;
+  font-size: 16px;
+  line-height: 24px;
+  color: #FF7B00;
+  margin: 0;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.question {
+  font-family: 'Dongle', sans-serif;
+  font-size: 24px;
+  line-height: 27px;
+  color: #0C759E;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tryBtn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.pencilIcon {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+  /* tint #444444 fill → #FF7B00 */
+  filter: brightness(0) saturate(100%) invert(49%) sepia(98%) saturate(1200%) hue-rotate(13deg) brightness(103%) contrast(103%);
+}

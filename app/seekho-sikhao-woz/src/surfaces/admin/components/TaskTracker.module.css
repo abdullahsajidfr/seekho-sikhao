@@ -1,0 +1,91 @@
+.panel {
+  background: #252540;
+  border-radius: 14px;
+  padding: 16px;
+}
+
+.title {
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #8888aa;
+  margin-bottom: 12px;
+}
+
+.taskList {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.taskRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: #1a1a2e;
+}
+
+.taskRow.active {
+  background: rgba(255, 210, 60, 0.12);
+  border: 1px solid rgba(255, 210, 60, 0.3);
+}
+
+.taskNum {
+  font-size: 11px;
+  font-weight: 700;
+  color: #8888aa;
+  min-width: 18px;
+}
+
+.taskName {
+  flex: 1;
+  font-size: 14px;
+  color: #cccce0;
+  cursor: help;
+}
+
+.taskRow.active .taskName {
+  color: #fff;
+  font-weight: 600;
+}
+
+.taskTimer {
+  font-family: monospace;
+  font-size: 13px;
+  color: rgba(255, 210, 60, 0.9);
+  min-width: 48px;
+  text-align: right;
+}
+
+.startBtn {
+  background: #2ABAF2;
+  color: #000;
+  border: none;
+  border-radius: 999px;
+  font-family: 'Fredoka', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 12px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.startBtn:hover { filter: brightness(1.1); }
+
+.endBtn {
+  background: var(--color-feedback-red);
+  color: #fff;
+  border: none;
+  border-radius: 999px;
+  font-family: 'Fredoka', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 12px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.endBtn:hover { filter: brightness(1.1); }

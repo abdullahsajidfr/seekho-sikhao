@@ -1,0 +1,89 @@
+.wrap {
+  background: #252540;
+  border-radius: 14px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  flex-shrink: 0;
+}
+
+.title {
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #8888aa;
+}
+
+.counter {
+  font-size: 11px;
+  background: #3a3a5a;
+  color: #aaaacc;
+  border-radius: 999px;
+  padding: 2px 8px;
+}
+
+.feed {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding-right: 4px;
+}
+
+.entry {
+  display: flex;
+  gap: 8px;
+  align-items: baseline;
+  padding: 5px 8px;
+  border-radius: 6px;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.entry.taskEvent { background: rgba(255, 210, 60, 0.1); }
+.entry.smiley    { background: rgba(180, 100, 240, 0.12); }
+.entry.manual    { background: rgba(242, 100, 42, 0.1); }
+.entry.auto      { background: transparent; }
+
+.time {
+  font-family: monospace;
+  color: #666699;
+  min-width: 50px;
+  font-size: 11px;
+}
+
+.sourceBadge {
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 1px 6px;
+  white-space: nowrap;
+}
+
+.sourceBadge.app   { background: rgba(42, 186, 242, 0.2); color: #2ABAF2; }
+.sourceBadge.admin { background: rgba(242, 130, 42, 0.2); color: #f2821a; }
+
+.label {
+  color: #cccce0;
+  flex: 1;
+  word-break: break-all;
+}
+
+.empty {
+  font-size: 13px;
+  color: #666688;
+  text-align: center;
+  padding: 24px 0;
+}

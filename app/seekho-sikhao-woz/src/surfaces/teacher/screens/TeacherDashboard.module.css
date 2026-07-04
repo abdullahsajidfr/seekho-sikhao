@@ -1,0 +1,15 @@
+.page { display: flex; flex-direction: column; height: 100%; background: var(--color-bg-1); overflow-y: auto; }
+.topBar { display: flex; align-items: center; justify-content: space-between; padding: var(--space-2) var(--space-3); background: var(--color-bg-2); border-bottom: 1.5px solid var(--color-border); }
+.appName { font-family: var(--font-heading); font-size: var(--text-h3); color: var(--color-primary); }
+.configBtn { background: var(--color-primary); color: var(--color-text-secondary); font-family: var(--font-heading); font-size: var(--text-body-lg); border: none; border-radius: var(--radius-btn); padding: var(--space-1) var(--space-2); cursor: pointer; }
+.welcome { padding: var(--space-3); background: var(--color-bg-2); margin: var(--space-2); border-radius: var(--radius-card); box-shadow: var(--shadow-card); }
+.greeting { font-family: var(--font-heading); font-size: var(--text-h3); }
+.stats { display: flex; gap: var(--space-4); margin-top: var(--space-2); }
+.stat { display: flex; flex-direction: column; align-items: center; }
+.statNum { font-family: var(--font-heading); font-size: var(--text-h2); color: var(--color-primary); }
+.sectionTitle { font-family: var(--font-heading); font-size: var(--text-h4); padding: 0 var(--space-3); color: var(--color-text-muted); }
+.classList { display: flex; flex-direction: column; gap: var(--space-2); padding: var(--space-2) var(--space-3); }
+.classCard { display: flex; align-items: center; justify-content: space-between; background: var(--color-bg-2); border: 1.5px solid var(--color-border); border-radius: var(--radius-card); padding: var(--space-2) var(--space-3); box-shadow: var(--shadow-card); cursor: pointer; text-align: left; }
+.className { font-family: var(--font-heading); font-size: var(--text-h4); }
+.classMeta { font-size: var(--text-body-sm); color: var(--color-text-muted); }
+.arrow { font-size: var(--text-h2); color: var(--color-text-muted-2); }

@@ -1,0 +1,14 @@
+.page { display: flex; flex-direction: column; height: 100%; background: var(--color-bg-1); overflow-y: auto; }
+.topBar { display: flex; align-items: center; gap: var(--space-2); padding: var(--space-2); background: var(--color-bg-2); border-bottom: 1.5px solid var(--color-border); height: 56px; }
+.back { background: none; border: none; font-size: var(--text-h3); cursor: pointer; min-width: 44px; min-height: 44px; }
+.title { font-family: var(--font-heading); font-size: var(--text-h3); }
+.profile { display: flex; align-items: center; gap: var(--space-2); padding: var(--space-3); background: var(--color-bg-2); margin: var(--space-2); border-radius: var(--radius-card); box-shadow: var(--shadow-card); }
+.avatar { width: 64px; height: 64px; border-radius: 50%; background: var(--color-primary); color: var(--color-text-secondary); font-family: var(--font-heading); font-size: var(--text-h3); display: flex; align-items: center; justify-content: center; }
+.name { font-family: var(--font-heading); font-size: var(--text-h3); }
+.meta { font-size: var(--text-body-lg); color: var(--color-text-muted); }
+.section { padding: 0 var(--space-3) var(--space-3); }
+.sectionTitle { font-family: var(--font-heading); font-size: var(--text-h4); color: var(--color-text-muted); margin-bottom: var(--space-1); }
+.chip { display: inline-block; background: var(--color-ai-bubble); border-radius: var(--radius-pill); padding: 4px var(--space-2); font-size: var(--text-body-sm); margin: 4px; }
+.logCard { background: var(--color-bg-2); border: 1.5px solid var(--color-border); border-radius: var(--radius-card); padding: var(--space-2); margin-bottom: var(--space-1); }
+.logQ { font-size: var(--text-body-lg); color: var(--color-text-primary); }
+.logMeta { font-size: var(--text-caption); color: var(--color-text-muted-2); margin-top: 4px; }

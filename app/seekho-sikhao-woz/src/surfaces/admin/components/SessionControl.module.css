@@ -1,0 +1,185 @@
+.panel {
+  background: #252540;
+  border-radius: 14px;
+  padding: 16px;
+}
+
+.title {
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #8888aa;
+  margin-bottom: 12px;
+}
+
+.row {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.label {
+  font-size: 12px;
+  color: #aaaacc;
+}
+
+.input {
+  background: #1a1a2e;
+  border: 1px solid #3a3a5a;
+  border-radius: 8px;
+  color: #fff;
+  font-family: 'Fredoka', sans-serif;
+  font-size: 15px;
+  padding: 8px 12px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.input:focus {
+  outline: none;
+  border-color: #2ABAF2;
+}
+
+.select {
+  background: #1a1a2e;
+  border: 1px solid #3a3a5a;
+  border-radius: 8px;
+  color: #fff;
+  font-family: 'Fredoka', sans-serif;
+  font-size: 15px;
+  padding: 8px 12px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.startBtn {
+  background: var(--color-feedback-green);
+  color: #000;
+  border: none;
+  border-radius: 999px;
+  font-family: 'Fredoka', sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  padding: 10px 20px;
+  cursor: pointer;
+  width: 100%;
+  margin-bottom: 8px;
+}
+
+.startBtn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.endBtn {
+  background: var(--color-feedback-red);
+  color: #fff;
+  border: none;
+  border-radius: 999px;
+  font-family: 'Fredoka', sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  padding: 10px 20px;
+  cursor: pointer;
+  width: 100%;
+}
+
+.endBtn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.activeBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(42, 242, 139, 0.15);
+  border: 1px solid var(--color-feedback-green);
+  color: var(--color-feedback-green);
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 3px 10px;
+  margin-bottom: 8px;
+}
+
+.dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--color-feedback-green);
+  animation: pulse 1.2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+.clock {
+  font-family: monospace;
+  font-size: 32px;
+  color: #fff;
+  text-align: center;
+  letter-spacing: 0.06em;
+  padding: 8px 0;
+}
+
+.confirmModal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.confirmCard {
+  background: #252540;
+  border-radius: 14px;
+  padding: 24px;
+  width: 300px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.confirmText {
+  font-size: 16px;
+  color: #fff;
+  line-height: 1.5;
+}
+
+.confirmActions {
+  display: flex;
+  gap: 12px;
+}
+
+.confirmOk {
+  flex: 1;
+  background: var(--color-feedback-green);
+  color: #000;
+  border: none;
+  border-radius: 999px;
+  font-family: 'Fredoka', sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  padding: 10px;
+  cursor: pointer;
+}
+
+.confirmCancel {
+  flex: 1;
+  background: #3a3a5a;
+  color: #fff;
+  border: none;
+  border-radius: 999px;
+  font-family: 'Fredoka', sans-serif;
+  font-size: 15px;
+  padding: 10px;
+  cursor: pointer;
+}

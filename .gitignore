@@ -1,0 +1,50 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+dist-ssr/
+web-build/
+build/
+
+# Expo
+.expo/
+expo-env.d.ts
+.metro-health-check*
+
+# Native
+/ios
+/android
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+*.orig.*
+
+# Env / secrets
+.env
+.env.*
+!.env.example
+!.env.local.example
+*.local
+.vercel
+
+# Logs
+logs
+*.log
+npm-debug.*
+yarn-debug.*
+yarn-error.*
+pnpm-debug.log*
+
+# TypeScript
+*.tsbuildinfo
+
+# Editor / OS
+.DS_Store
+.vscode/*
+!.vscode/extensions.json
+.idea
+*.suo
+*.sw?

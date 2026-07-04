@@ -1,0 +1,24 @@
+.layout {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: var(--color-bg-1);
+  overflow: hidden;
+}
+
+.topRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: var(--space-2);
+  padding: var(--space-2);
+  border-bottom: 1.5px solid var(--color-border);
+}
+
+.bottomRow {
+  display: grid;
+  grid-template-columns: 1fr 2fr 1fr;
+  gap: var(--space-2);
+  padding: var(--space-2);
+  flex: 1;
+  overflow: hidden;
+}

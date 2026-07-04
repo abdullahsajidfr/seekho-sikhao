@@ -1,0 +1,250 @@
+/* Unified card matching Figma: #F5F5F5, 139px tall, 1044px wide (handled by parent) */
+.bar {
+  background: #F5F5F5;
+  border: 1px solid rgba(42, 242, 139, 0.15);
+  border-radius: 16px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  flex-shrink: 0;
+}
+
+/* Text area takes up top portion */
+.inputArea {
+  flex: 1;
+  min-height: 44px;
+}
+
+.textInput {
+  width: 100%;
+  background: transparent;
+  border: none;
+  outline: none;
+  resize: none;
+  font-family: 'Dongle', sans-serif;
+  font-size: 40px;
+  line-height: 1;
+  color: #1A1A1A;
+  overflow-y: hidden;
+}
+
+.textInput::placeholder {
+  color: #A1A1A1;
+}
+
+.voiceDisplay {
+  font-family: 'Dongle', sans-serif;
+  font-size: 40px;
+  line-height: 1;
+  color: #1A1A1A;
+  margin: 0;
+  min-height: 44px;
+}
+
+.voiceDisplay.listening {
+  color: #A1A1A1;
+}
+
+/* Bottom row: mic + camera left, send right */
+.actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.leftIcons {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  padding-left: 6px;
+}
+
+.iconBtn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+}
+
+.iconBtn.micActive {
+  opacity: 0.6;
+}
+
+.iconImg {
+  width: 31px;
+  height: 38px;
+  object-fit: contain;
+}
+
+.iconImgCamera {
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
+}
+
+.sendBtn {
+  width: 52px;
+  height: 52px;
+  background: #2ABAF2;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  flex-shrink: 0;
+}
+
+.sendBtn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.sendIcon {
+  width: 52px;
+  height: 52px;
+  object-fit: contain;
+}
+
+.hidden {
+  display: none;
+}
+
+/* ── Waveform card ───────────────────────────────── */
+.waveformCard {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.waveformTop {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.waveBars {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  height: 48px;
+}
+
+@keyframes barPulse {
+  0%   { transform: scaleY(1);   }
+  100% { transform: scaleY(0.2); }
+}
+
+.waveBar {
+  flex-shrink: 0;
+  width: 3px;
+  background: #1A1A1A;
+  border-radius: 2px;
+  animation: barPulse 0.45s ease-in-out infinite alternate;
+  transform-origin: center;
+}
+
+.waveTimer {
+  font-family: 'Dongle', sans-serif;
+  font-size: 28px;
+  line-height: 1;
+  color: #1A1A1A;
+  white-space: nowrap;
+  min-width: 52px;
+  text-align: right;
+}
+
+.waveInterim {
+  margin: 0;
+  font-family: 'Dongle', sans-serif;
+  font-size: 36px;
+  line-height: 1.1;
+  color: #A1A1A1;
+  min-height: 1em;
+}
+
+.waveActions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.waveDeleteBtn {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: rgba(244, 88, 88, 0.12);
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+
+.waveDeleteIcon {
+  width: 22px;
+  height: 22px;
+  object-fit: contain;
+}
+
+.waveSendBtn {
+  width: 52px;
+  height: 52px;
+  background: #2ABAF2;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+
+.waveSendIcon {
+  width: 52px;
+  height: 52px;
+  object-fit: contain;
+}
+
+/* Pending photo preview shown while uploading */
+.pendingWrap {
+  position: relative;
+  align-self: flex-end;
+  width: 80px;
+  height: 80px;
+  border-radius: 10px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.pendingImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  opacity: 0.6;
+}
+
+.pendingOverlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.25);
+}
+
+.pendingLabel {
+  font-family: 'Dongle', sans-serif;
+  font-size: 18px;
+  color: #FFFFFF;
+  white-space: nowrap;
+}

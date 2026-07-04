@@ -1,0 +1,133 @@
+.page {
+  min-height: 100vh;
+  background: #1a1a2e;
+  color: #e8e8f0;
+  font-family: 'Fredoka', sans-serif;
+}
+
+.header {
+  background: #0f0f1a;
+  border-bottom: 1px solid #2a2a4a;
+  padding: 0 var(--space-4);
+  height: 52px;
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.headerTitle {
+  font-size: 18px;
+  font-weight: 600;
+  color: #ffffff;
+  letter-spacing: 0.03em;
+}
+
+.headerBadge {
+  background: #2ABAF2;
+  color: #000;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 999px;
+}
+
+.roomBadge {
+  margin-left: auto;
+  font-size: 13px;
+  color: #888;
+  font-family: monospace;
+}
+
+.entryWrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(100vh - 52px);
+  gap: var(--space-3);
+}
+
+.entryCard {
+  background: #252540;
+  border-radius: 14px;
+  padding: var(--space-5);
+  width: 320px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.entryTitle {
+  font-size: 20px;
+  font-weight: 600;
+  color: #fff;
+  text-align: center;
+}
+
+.entryInput {
+  background: #1a1a2e;
+  border: 1px solid #3a3a5a;
+  border-radius: 12px;
+  color: #fff;
+  font-family: monospace;
+  font-size: 28px;
+  text-align: center;
+  letter-spacing: 0.2em;
+  padding: var(--space-2) var(--space-3);
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.entryInput:focus {
+  outline: none;
+  border-color: #2ABAF2;
+}
+
+.entryBtn {
+  background: var(--color-primary);
+  color: #fff;
+  border: none;
+  border-radius: 999px;
+  font-family: 'Fredoka', sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  padding: var(--space-2) var(--space-4);
+  cursor: pointer;
+  width: 100%;
+}
+
+.entryBtn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.entryError {
+  color: var(--color-feedback-red);
+  font-size: 13px;
+  text-align: center;
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: 1fr 420px;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  height: calc(100vh - 52px);
+  box-sizing: border-box;
+}
+
+.leftCol {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  overflow: hidden;
+  min-height: 0;
+}
+
+.rightCol {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  overflow-y: auto;
+  padding-right: 2px;
+}

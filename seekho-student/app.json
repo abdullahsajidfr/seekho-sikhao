@@ -1,0 +1,45 @@
+{
+  "expo": {
+    "name": "Seekho Sikhao",
+    "slug": "seekho-student",
+    "version": "1.0.0",
+    "orientation": "landscape",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#FFFBF7"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "requireFullScreen": true,
+      "infoPlist": {
+        "UISupportedInterfaceOrientations~ipad": [
+          "UIInterfaceOrientationLandscapeLeft",
+          "UIInterfaceOrientationLandscapeRight"
+        ],
+        "NSCameraUsageDescription": "Seekho Sikhao uses the camera so you can take a photo of your homework to ask a question.",
+        "NSPhotoLibraryUsageDescription": "Seekho Sikhao lets you pick a photo of your homework from your gallery.",
+        "NSMicrophoneUsageDescription": "Seekho Sikhao uses the microphone so you can ask questions by voice."
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#E6F4FE",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      },
+      "screenOrientation": "landscape",
+      "predictiveBackGestureEnabled": false
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      "expo-font",
+      "expo-splash-screen"
+    ]
+  }
+}

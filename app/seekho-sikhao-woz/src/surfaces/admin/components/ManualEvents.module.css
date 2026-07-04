@@ -1,0 +1,83 @@
+.panel {
+  background: #252540;
+  border-radius: 14px;
+  padding: 16px;
+}
+
+.title {
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #8888aa;
+  margin-bottom: 12px;
+}
+
+.quickButtons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.quickBtn {
+  background: #1a1a2e;
+  border: 1px solid #3a3a5a;
+  border-radius: 999px;
+  color: #cccce0;
+  font-family: 'Fredoka', sans-serif;
+  font-size: 13px;
+  padding: 5px 12px;
+  cursor: pointer;
+  transition: background 0.1s, border-color 0.1s;
+}
+
+.quickBtn:hover {
+  background: rgba(42, 186, 242, 0.15);
+  border-color: #2ABAF2;
+  color: #fff;
+}
+
+.quickBtn.flashed {
+  background: rgba(42, 186, 242, 0.3);
+  border-color: #2ABAF2;
+}
+
+.noteRow {
+  display: flex;
+  gap: 8px;
+}
+
+.noteInput {
+  flex: 1;
+  background: #1a1a2e;
+  border: 1px solid #3a3a5a;
+  border-radius: 8px;
+  color: #fff;
+  font-family: 'Fredoka', sans-serif;
+  font-size: 14px;
+  padding: 7px 12px;
+}
+
+.noteInput:focus {
+  outline: none;
+  border-color: #2ABAF2;
+}
+
+.noteBtn {
+  background: #2ABAF2;
+  color: #000;
+  border: none;
+  border-radius: 8px;
+  font-family: 'Fredoka', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  padding: 7px 14px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.noteBtn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}

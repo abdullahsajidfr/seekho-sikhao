@@ -1,0 +1,143 @@
+.page {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  background: #FFFBF7;
+}
+
+.card {
+  position: relative;
+  width: 673px;
+  height: 711px;
+  background: #FFFFFF;
+  border: 1.523px solid #D1E8DC;
+  border-radius: 16px;
+  box-shadow: 4.569px 6.091px 6.091px -1.523px rgba(0,0,0,0.25);
+  overflow: visible;
+  flex-shrink: 0;
+}
+
+/* Logo — centered at top of card */
+.logo {
+  position: absolute;
+  left: 50%;
+  top: 48px;
+  transform: translateX(-50%);
+  height: 72px;
+  width: auto;
+  object-fit: contain;
+}
+
+/* Main content area — matching Figma left=77.48 top=138.49 */
+.content {
+  position: absolute;
+  left: 77px;
+  top: 138px;
+  width: 514px;
+  display: flex;
+  flex-direction: column;
+  gap: 67px;
+}
+
+.headingGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.heading {
+  font-family: 'Fredoka', sans-serif;
+  font-weight: 500;
+  font-size: 57px;
+  line-height: 72px;
+  color: #1A1A1A;
+}
+
+.sub {
+  font-family: 'Fredoka', sans-serif;
+  font-weight: 500;
+  font-size: 24px;
+  line-height: 33px;
+  color: #A1A1A1;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Each field: grey pill with label + input */
+.field {
+  background: #F5F5F5;
+  border: 1px solid #444;
+  border-radius: 13px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 18px;
+}
+
+.fieldContent {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.fieldLabel {
+  font-family: 'Dongle', sans-serif;
+  font-size: 24px;
+  line-height: 27px;
+  color: #444;
+}
+
+.fieldInput {
+  font-family: 'Dongle', sans-serif;
+  font-size: 22px;
+  line-height: 27px;
+  color: #1A1A1A;
+  background: transparent;
+  border: none;
+  outline: none;
+  width: 100%;
+}
+
+.fieldInput::placeholder {
+  color: #A1A1A1;
+}
+
+.eyeBtn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.eyeBtn img {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+}
+
+.loginBtn {
+  width: 100%;
+  height: 51px;
+  background: #2ABAF2;
+  color: #FFFFFF;
+  font-family: 'Fredoka', sans-serif;
+  font-weight: 500;
+  font-size: 24px;
+  border: none;
+  border-radius: 100px;
+  cursor: pointer;
+}
+
+.loginBtn:active {
+  opacity: 0.85;
+}

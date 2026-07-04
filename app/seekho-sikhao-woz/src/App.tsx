@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { LanguageProvider } from './context/LanguageContext';
+import AutoLogger from './components/AutoLogger';
 import EntryPage  from './surfaces/entry/EntryPage';
 import StudentApp from './surfaces/student/StudentApp';
 import WizardApp  from './surfaces/wizard/WizardApp';
@@ -11,6 +12,7 @@ export default function App() {
   return (
     <LanguageProvider>
       <BrowserRouter>
+        <AutoLogger />
         <Routes>
           <Route path="/"        element={<EntryPage />} />
           <Route path="/student" element={<StudentApp />} />

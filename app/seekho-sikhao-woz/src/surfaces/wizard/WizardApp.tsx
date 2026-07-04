@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useSession } from '../../hooks/useSession';
+import { useLogContext } from '../../hooks/useLogContext';
 import {
   generateRoomCode, createSession, sendAiResponse, setThinking,
   setLanguage, resetSession, saveGreetings,
@@ -39,6 +40,7 @@ export default function WizardApp() {
   const [editGreetings, setEditGreetings] = useState<Greetings | null>(null);
 
   const { session } = useSession(roomCode);
+  useLogContext(roomCode, session?.adminControl);
 
   async function handleGenerate() {
     const code = await generateRoomCode();

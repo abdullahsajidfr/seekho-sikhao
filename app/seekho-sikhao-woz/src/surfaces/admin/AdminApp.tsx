@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useSession } from '../../hooks/useSession';
+import { useLogContext } from '../../hooks/useLogContext';
 import { roomExists } from '../../firebase/session';
 import SessionControl from './components/SessionControl';
 import TaskTracker from './components/TaskTracker';
@@ -19,6 +20,7 @@ export default function AdminApp() {
 
   const { session } = useSession(roomCode);
   const adminControl = session?.adminControl;
+  useLogContext(roomCode, adminControl);
 
   if (params.get('key') !== 'ctrl-alt-del') {
     return <div style={{ padding: 32, fontFamily: 'monospace' }}>Access denied.</div>;

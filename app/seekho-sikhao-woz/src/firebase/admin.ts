@@ -1,6 +1,6 @@
 import { db, firebaseEnabled } from './config';
 import { ref, update, push } from 'firebase/database';
-import type { EventLogEntry } from '../types/admin';
+import type { EventLogEntry, LogSource, LogKind } from '../types/admin';
 
 // ── Admin control writes ───────────────────────────────────────────────
 
@@ -80,34 +80,50 @@ export async function setSmileyometerQuestion(
 export function logEvent(
   roomCode: string,
   label: string,
-  source: 'student_app' | 'admin',
+  source: LogSource,
   ctx: {
     sessionStartTime?: number | null;
     activeTask?: string | null;
     studentName?: string;
     grade?: string;
+    /** Overrides the manual/auto classification (auto-capture passes 'auto'). */
+    type?: 'auto' | 'manual';
+    kind?: LogKind;
+    route?: string;
+    target?: string;
+    x?: number;
+    y?: number;
   } = {}
 ): void {
   if (!firebaseEnabled) return;
   const now = Date.now();
   const relativeMs = ctx.sessionStartTime ? now - ctx.sessionStartTime : 0;
+  const type = ctx.type ?? (source === 'admin' ? 'manual' : 'auto');
 
   const entry: EventLogEntry = {
-    type: source === 'admin' ? 'manual' : 'auto',
+    type,
     label,
     absoluteTime: now,
     relativeMs,
     taskPhase: ctx.activeTask ?? null,
     source,
+    // Only attach the interaction fields when present (RTDB rejects `undefined`).
+    ...(ctx.kind   ? { kind: ctx.kind }     : {}),
+    ...(ctx.route  ? { route: ctx.route }   : {}),
+    ...(ctx.target ? { target: ctx.target } : {}),
+    ...(ctx.x !== undefined ? { x: ctx.x }  : {}),
+    ...(ctx.y !== undefined ? { y: ctx.y }  : {}),
   };
 
-  // Fire-and-forget Firebase push
-  push(ref(db, `sessions/${roomCode}/eventLog`), entry).catch(console.error);
+  // Fire-and-forget Firebase push. Events with a live session attach to it;
+  // events fired outside any session (e.g. teacher surface) go to a global bucket.
+  const path = roomCode ? `sessions/${roomCode}/eventLog` : `telemetry/${source}/eventLog`;
+  push(ref(db, path), entry).catch(console.error);
 
   // Fire-and-forget Sheets POST
   postToSheets({
     type: 'event',
-    sessionId: roomCode,
+    sessionId: roomCode || `(${source})`,
     studentName: ctx.studentName ?? '',
     grade: ctx.grade ?? '',
     eventType: source,

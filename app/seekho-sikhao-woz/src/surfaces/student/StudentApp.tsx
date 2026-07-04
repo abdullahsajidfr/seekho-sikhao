@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSession } from '../../hooks/useSession';
+import { useLogContext } from '../../hooks/useLogContext';
 import { useLanguage } from '../../context/LanguageContext';
 import { archiveCurrentChat, clearCurrentChat, resumePastChat } from '../../firebase/session';
 import { logEvent } from '../../firebase/admin';
@@ -19,6 +20,7 @@ export default function StudentApp() {
   const navigate  = useNavigate();
   const roomCode  = sessionStorage.getItem('roomCode');
   const { session, loading } = useSession(roomCode);
+  useLogContext(roomCode, session?.adminControl);
   const { setLanguage } = useLanguage();
 
   const [screen,      setScreen]      = useState<Screen>('login');

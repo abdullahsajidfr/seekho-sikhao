@@ -72,6 +72,27 @@ npm start               # Expo dev server — press i / a / w for iOS / Android 
 
 ---
 
+## Analytics & event logging (metrics)
+
+Both surfaces log to a shared pipeline (`src/firebase/admin.ts → logEvent`) that writes every event to **two sinks at once**:
+
+- **Firebase Realtime Database** — per-session under `sessions/{roomCode}/eventLog` (events fired outside a session go to `telemetry/{surface}/eventLog`).
+- **Google Sheets** — via a deployed Apps Script web app (`VITE_SHEETS_ENDPOINT` / `EXPO_PUBLIC_SHEETS_ENDPOINT`, see `app/docs/google-apps-script.js`), fanned into `Sessions`, `EventLog`, and `Smileyometer` tabs.
+
+Each record carries: `label`, `absoluteTime`, `relativeMs` (ms since session start), `taskPhase`, `source` (which surface), `type` (`auto`/`manual`), and — for auto-captured interactions — `kind`, `route`, `target`, and `x`/`y`.
+
+The **web app auto-captures every interaction** across all four surfaces via a global listener (`src/lib/autolog.ts`, mounted as `<AutoLogger/>`), with no per-component wiring:
+
+| `kind` | Fires on | Example label |
+|---|---|---|
+| `nav` | route change | `nav:/student` |
+| `click` | any click/tap | `click:Great job! button` |
+| `input` | text field change/blur | `input:Teacher ID=teacher01` |
+| `keydown` | Enter in a field | `submit:0000=5678` |
+| `submit` | form submit | `submit:Log In form` |
+
+Labels are derived from `data-log` / `aria-label` / text / placeholder, so they're human-readable out of the box. In dev, every captured event also prints `console.debug('[autolog]', kind, label, target)`. Logging is fire-and-forget and no-ops entirely when Firebase env vars are absent (demo mode). Hand-placed semantic events (`screen:*`, `task:*`, `smileyometer:*`) still fire alongside the auto-capture.
+
 ## Security note
 
 No secrets are committed. Both apps read all credentials from environment variables and ship with `.example` templates only. During the WoZ testing period the Firebase RTDB + Storage rules are intentionally open (no Firebase Auth is used); do not reuse that configuration in production.

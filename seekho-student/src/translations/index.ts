@@ -34,10 +34,10 @@ export const STRINGS = {
     hint: 'Hint',
     correct: 'Correct!',
     // Close-chat prompt (Item D)
-    close_chat_q: 'All done, or ask another question?',
-    close_chat_yes: 'Close chat',
-    close_chat_no: 'Ask another question',
-    close_chat_read: 'Shabaash! Do you want to ask another question, or close this chat?',
+    close_chat_q: 'Bas, ya aur sawaal?',
+    close_chat_yes: 'Chat band karo',
+    close_chat_no: 'Aur sawaal poochho',
+    close_chat_read: 'Shabaash! Kya aap aur sawaal poochna chahte hain, ya chat band kar dein?',
     // Photo upload (Item G)
     upload_failed: 'Upload failed',
     tap_retry: 'Tap to try again',

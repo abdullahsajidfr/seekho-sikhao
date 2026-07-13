@@ -12,8 +12,10 @@ const LanguageContext = createContext<LanguageContextValue | null>(null);
 
 export function LanguageProvider({ children }: { children: React.ReactNode }) {
   // Default to Urdu: the research cohort is Urdu-first, and the session's stored
-  // `language` (also 'ur' by default — see createSession) syncs over this on load.
-  const [language, setLangState] = useState<Language>('ur');
+  // `language` (also 'en' by default — see createSession) syncs over this on
+  // load. UI stays English per the study design; only the close-chat prompt
+  // uses Roman Urdu (see translations).
+  const [language, setLangState] = useState<Language>('en');
 
   // In React Native there is no document element / dir attribute. RTL layout is
   // handled per-view via textAlign; we only track the active language here.

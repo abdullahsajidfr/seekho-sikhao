@@ -24,7 +24,13 @@ import { db, firebaseEnabled } from '../firebase/config';
 
 let currentPlayer: AudioPlayer | null = null;
 let audioModeReady = false;
+// Session-unique prefix: `fileCounter` restarts at 0 on every JS reload while
+// old tts-*.mp3 files persist in the cache dir, and SDK 54's downloadFileAsync
+// throws "Destination already exists" on a name collision.
+const SESSION_PREFIX = Date.now().toString(36);
 let fileCounter = 0;
+
+const nextClipFile = () => new File(Paths.cache, `tts-${SESSION_PREFIX}-${fileCounter++}.mp3`);
 
 /**
  * Playback lifecycle hooks the read-aloud hook threads down so the chat bubbles
@@ -61,7 +67,7 @@ function rememberClip(key: string, uri: string): void {
 
 /** Write base64 audio to a fresh cache file and return its uri. */
 function writeBase64ToCache(base64: string): string {
-  const dest = new File(Paths.cache, `tts-${fileCounter++}.mp3`);
+  const dest = nextClipFile();
   try { dest.create(); } catch { /* already exists */ }
   dest.write(base64, { encoding: 'base64' });
   return dest.uri;
@@ -135,8 +141,11 @@ async function synthToFile(endpoint: string, text: string): Promise<string | nul
   }
 
   const url = `${endpoint}?text=${encodeURIComponent(text)}`;
-  const dest = new File(Paths.cache, `tts-${fileCounter++}.mp3`);
-  const file = await File.downloadFileAsync(url, dest, { idempotent: true });
+  const dest = nextClipFile();
+  // SDK 54's downloadFileAsync has no `idempotent` option and throws if the
+  // destination exists — clear any leftover from a previous session.
+  try { if (dest.exists) dest.delete(); } catch { /* best effort */ }
+  const file = await File.downloadFileAsync(url, dest);
   const uri = file.uri;
   if (!uri) return null;
 

@@ -65,11 +65,21 @@ function rememberClip(key: string, uri: string): void {
   }
 }
 
+/** Decode base64 to bytes in JS: Expo Go 54's native File.write accepts only a
+ *  single argument (the TS types are newer than the native module), so the
+ *  `{ encoding: 'base64' }` option crashes at runtime with an args-count error. */
+function base64ToBytes(base64: string): Uint8Array {
+  const binary = atob(base64);
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+  return bytes;
+}
+
 /** Write base64 audio to a fresh cache file and return its uri. */
 function writeBase64ToCache(base64: string): string {
   const dest = nextClipFile();
   try { dest.create(); } catch { /* already exists */ }
-  dest.write(base64, { encoding: 'base64' });
+  dest.write(base64ToBytes(base64));
   return dest.uri;
 }
 

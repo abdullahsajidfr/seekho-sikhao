@@ -262,7 +262,7 @@ const styles = StyleSheet.create({
   menuDotBtn: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center' },
   dots: { fontSize: 22, fontWeight: '700', color: colors.textMuted, letterSpacing: 1, marginTop: -10 },
 
-  inputWrap: { paddingHorizontal: 75, paddingBottom: 24 },
+  inputWrap: { paddingHorizontal: 75, paddingBottom: 24, paddingTop: 10 },
 
   // Close-chat prompt — clear question + explicit, colour-coded actions (Item D).
   endPrompt: {

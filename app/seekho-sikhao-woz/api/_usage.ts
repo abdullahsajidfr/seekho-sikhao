@@ -30,7 +30,10 @@ export async function logUsage(rec: UsageRecord): Promise<void> {
   try {
     const base = (process.env.FIREBASE_DATABASE_URL || process.env.VITE_FIREBASE_DATABASE_URL || '').replace(/\/+$/, '');
     if (!base) return;
-    const day = new Date(rec.ts).toISOString().slice(0, 10);
+    // Day key in Pakistan time (UTC+5) so records land on the same date the
+    // researcher's /usage page (browsing from Pakistan) shows — a UTC key
+    // would file evening calls under "yesterday".
+    const day = new Date(rec.ts + 5 * 3600_000).toISOString().slice(0, 10);
     const controller = new AbortController();
     const t = setTimeout(() => controller.abort(), USAGE_TIMEOUT_MS);
     try {

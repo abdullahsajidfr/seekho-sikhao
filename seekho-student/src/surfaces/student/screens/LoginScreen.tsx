@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Pressable, StyleSheet } from 'react-native';
+import { View, Text, TextInput, Pressable, StyleSheet, KeyboardAvoidingView, Platform } from 'react-native';
 import { Logo, Eye, EyeOff } from '../../../components/icons';
 import { logSubmit } from '../../../lib/autolog';
 import { colors, fonts } from '../../../theme';
@@ -42,7 +42,8 @@ export default function LoginScreen({ onSubmit }: Props) {
   }
 
   return (
-    <View style={styles.page}>
+    // The centered card lifts above the keyboard when a field is focused.
+    <KeyboardAvoidingView style={styles.page} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       <View style={styles.card}>
         <Logo height={72} />
 
@@ -94,7 +95,7 @@ export default function LoginScreen({ onSubmit }: Props) {
           </Pressable>
         </View>
       </View>
-    </View>
+    </KeyboardAvoidingView>
   );
 }
 

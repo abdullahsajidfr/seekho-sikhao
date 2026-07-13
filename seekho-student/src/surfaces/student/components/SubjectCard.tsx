@@ -41,15 +41,20 @@ export default function SubjectCard({ subject, grade = 'Grade 4, Section A', onP
       style={({ pressed }) => [styles.card, { backgroundColor: cfg.bg, borderColor: cfg.border }, pressed && styles.pressed]}
       onPress={() => { logTap(`student:subject-${subject.toLowerCase().replace(/\s+/g, '-')}`); onPress(); }}
     >
-      {cfg.glyph === 'math' && <MathIcon size={34} />}
-      {cfg.glyph === 'science' && <ScienceIcon size={34} />}
-      {cfg.glyph === 'islamiyat' && <IslamiyatIcon size={34} />}
-      {cfg.glyph === 'social' && <SocialIcon size={34} />}
-      {cfg.glyph === 'text' && (
-        <View style={[styles.iconBox, { backgroundColor: cfg.iconBg }]}>
+      {/* One shared 34×34 rounded badge for every subject so the icons sit in an
+          identical, centred box on each card. The SVG glyphs carry their own
+          same-colour fill, but their 31×29 artboard letterboxes to a SHORTER
+          rectangle at 34×34; the same-colour box fills that gap into a true
+          square, matching the English/Urdu text badges beside them in the grid. */}
+      <View style={[styles.iconBox, { backgroundColor: cfg.iconBg }]}>
+        {cfg.glyph === 'math' && <MathIcon size={34} />}
+        {cfg.glyph === 'science' && <ScienceIcon size={34} />}
+        {cfg.glyph === 'islamiyat' && <IslamiyatIcon size={34} />}
+        {cfg.glyph === 'social' && <SocialIcon size={34} />}
+        {cfg.glyph === 'text' && (
           <Text style={[styles.iconText, { fontFamily: cfg.iconFont }, cfg.iconSize ? { fontSize: cfg.iconSize } : null]}>{cfg.iconText}</Text>
-        </View>
-      )}
+        )}
+      </View>
       <View style={styles.textGroup}>
         <Text style={[styles.subjectName, { color: cfg.textColor }]}>{subject}</Text>
         <Text style={styles.grade}>{grade}</Text>
@@ -70,7 +75,7 @@ const styles = StyleSheet.create({
     borderRadius: 27,
   },
   pressed: { opacity: 0.82 },
-  iconBox: { width: 34, height: 34, borderRadius: 5, alignItems: 'center', justifyContent: 'center' },
+  iconBox: { width: 34, height: 34, borderRadius: 5, alignItems: 'center', justifyContent: 'center', overflow: 'hidden' },
   iconText: { fontSize: 19, color: '#FFFFFF', lineHeight: 22 },
   textGroup: { gap: 2, flexShrink: 1 },
   subjectName: { fontFamily: fonts.heading, fontSize: 24, lineHeight: 30 },

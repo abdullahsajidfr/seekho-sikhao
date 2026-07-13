@@ -26,7 +26,7 @@ interface Props {
 
 export default function StudentApp({ roomCode, studentName, isNew, onExit }: Props) {
   const { session, loading } = useSession(roomCode);
-  const { setLanguage } = useLanguage();
+  const { setLanguage, t } = useLanguage();
 
   useLogContext(roomCode, session?.adminControl);
 
@@ -92,7 +92,7 @@ export default function StudentApp({ roomCode, studentName, isNew, onExit }: Pro
   if (loading) {
     return (
       <View style={styles.loading}>
-        <Text style={styles.loadingText}>Connecting…</Text>
+        <Text style={styles.loadingText}>{t('connecting')}</Text>
       </View>
     );
   }

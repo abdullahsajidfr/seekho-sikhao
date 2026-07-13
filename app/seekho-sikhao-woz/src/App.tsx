@@ -5,6 +5,7 @@ import EntryPage  from './surfaces/entry/EntryPage';
 import StudentApp from './surfaces/student/StudentApp';
 import TeacherApp from './surfaces/teacher/TeacherApp';
 import AdminApp   from './surfaces/admin/AdminApp';
+import UsagePage  from './surfaces/usage/UsagePage';
 import './styles/global.css';
 
 export default function App() {
@@ -17,6 +18,7 @@ export default function App() {
           <Route path="/student" element={<StudentApp />} />
           <Route path="/teacher" element={<TeacherApp />} />
           <Route path="/admin"   element={<AdminApp />} />
+          <Route path="/usage"   element={<UsagePage />} />
         </Routes>
       </BrowserRouter>
     </LanguageProvider>

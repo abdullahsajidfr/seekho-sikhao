@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { View, Text, Pressable, ScrollView, StyleSheet, Dimensions } from 'react-native';
+import { View, Text, Pressable, ScrollView, StyleSheet, Dimensions, KeyboardAvoidingView, Platform } from 'react-native';
 import { sendGreeting, sendStudentMessage, setShowEndModal, clearCurrentChat } from '../../../firebase/session';
 import { useReadAloud } from '../../../hooks/useReadAloud';
 import { useLanguage } from '../../../context/LanguageContext';
@@ -73,8 +73,19 @@ export default function ChatScreen({ roomCode, subject, inputMode, session, onBa
     if (pendingOpenTsRef.current === ts) openWorkbookOnce(ts);
   }, [openWorkbookOnce]);
 
-  const { enabled: readAloud, toggle: toggleReadAloud, speak, playingTimestamp, revealProgress } =
-    useReadAloud(messages, roomCode, { onFinishSpeaking: handleFinishSpeaking });
+  const { enabled: readAloud, toggle: toggleReadAloud, speak, loading, playingTimestamp, revealProgress } =
+    useReadAloud(messages, roomCode, {
+      onFinishSpeaking: handleFinishSpeaking,
+      // Photo-mode entry: show the greeting as text but do NOT auto-read it aloud,
+      // so no AI voice plays over the camera/photo flow. Only the greeting (the one
+      // AI message with no student turn before it) is affected; later replies
+      // auto-play normally and the child can still tap the bubble to hear it.
+      suppressGreetingAutoPlay: inputMode === 'photo',
+    });
+
+  // The tutor is "speaking" while a clip is playing OR still loading; the mic
+  // holds (waitingForAi) until this clears so it never records the AI's voice.
+  const aiSpeaking = playingTimestamp != null || loading;
 
   // Mirror of `readAloud` read INSIDE the auto-open effect. Kept out of the
   // effect deps on purpose: toggling read-aloud must not re-run the effect —
@@ -159,7 +170,7 @@ export default function ChatScreen({ roomCode, subject, inputMode, session, onBa
   );
 
   return (
-    <View style={styles.page}>
+    <KeyboardAvoidingView style={styles.page} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       <TopBar title={subject} showBack onBack={() => onBack(chatName || undefined)} rightSlot={rightSlot} />
 
       <ScrollView
@@ -215,6 +226,7 @@ export default function ChatScreen({ roomCode, subject, inputMode, session, onBa
           roomCode={roomCode}
           initialMode={inputMode}
           onSend={handleSend}
+          aiSpeaking={aiSpeaking}
           onInputFocus={() => setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 300)}
         />
       </View>
@@ -235,7 +247,7 @@ export default function ChatScreen({ roomCode, subject, inputMode, session, onBa
       {deletingOpen ? (
         <DeleteModal busy={deleteBusy} onCancel={() => setDeletingOpen(false)} onDelete={handleDelete} />
       ) : null}
-    </View>
+    </KeyboardAvoidingView>
   );
 }
 

@@ -16,8 +16,11 @@ push() {
 }
 
 echo "== server vars (API functions) =="
-push GEMINI_API_KEY        "${GEMINI_API_KEY:-}"
-push UPLIFT_API_KEY        "${UPLIFT_API_KEY:-}"
+push GEMINI_API_KEY            "${GEMINI_API_KEY:-}"
+push UPLIFT_API_KEY            "${UPLIFT_API_KEY:-}"
+push UPLIFT_API_KEYS_FALLBACK  "${UPLIFT_API_KEYS_FALLBACK:-}"
+push UPLIFT_VOICE_ID           "${UPLIFT_VOICE_ID:-}"
+push UPLIFT_TTS_FORMAT         "${UPLIFT_TTS_FORMAT:-}"
 push FIREBASE_DATABASE_URL "$DB_URL"
 
 echo "== client vars (wizard console build) =="

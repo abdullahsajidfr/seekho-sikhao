@@ -49,7 +49,15 @@ export function useReadAloud(
   {
     autoPlay = true,
     onFinishSpeaking,
-  }: { autoPlay?: boolean; onFinishSpeaking?: (timestamp: number) => void } = {}
+    suppressGreetingAutoPlay = false,
+  }: {
+    autoPlay?: boolean;
+    onFinishSpeaking?: (timestamp: number) => void;
+    // When true, the greeting (the only AI message with no student turn before it)
+    // is shown but never auto-read aloud — used for photo-mode entry so no voice
+    // plays over the camera flow. Manual replay via speak() is unaffected.
+    suppressGreetingAutoPlay?: boolean;
+  } = {}
 ) {
   const [enabled, setEnabled] = useState(true);
   const [loading, setLoading] = useState(false);
@@ -71,6 +79,9 @@ export function useReadAloud(
   // 2). Read via ref so changing the callback never re-creates speak().
   const onFinishRef = useRef(onFinishSpeaking);
   onFinishRef.current = onFinishSpeaking;
+  // Read inside the auto-play effect so toggling it never re-creates the effect.
+  const suppressGreetingRef = useRef(suppressGreetingAutoPlay);
+  suppressGreetingRef.current = suppressGreetingAutoPlay;
   // Mirror of `playingTimestamp` for synchronous reads inside the async speak().
   const playingRef = useRef<number | null>(null);
   // Bumped on every new speak()/stop so a stale in-flight request (e.g. a clip
@@ -222,6 +233,16 @@ export function useReadAloud(
       return;
     }
 
+    // A greeting is the only AI message with no student turn before it. In photo
+    // entry we still SHOW it but must not auto-read it aloud (no voice over the
+    // camera flow): mark it handled and skip WITHOUT claiming the channel, so it
+    // renders as plain full text. Manual replay (the ▶ button) still works.
+    const isReply = messages.some((m) => m.role === 'student' && m.timestamp < ts);
+    if (suppressGreetingRef.current && !isReply) {
+      lastTimestampRef.current = ts;
+      return;
+    }
+
     // Reveal-from-start immediately (kills the pre-flash) even before we commit.
     claimChannel(ts);
 
@@ -230,7 +251,6 @@ export function useReadAloud(
     // re-runs this effect) rather than paying a redundant on-demand synthesis.
     // Greetings never get a stored clip (no student turn precedes them), so they
     // play immediately. A timer guarantees we never hold forever.
-    const isReply = messages.some((m) => m.role === 'student' && m.timestamp < ts);
     if (!msg.audioReady && isReply) {
       const now = Date.now();
       if (pendingRef.current !== ts) {

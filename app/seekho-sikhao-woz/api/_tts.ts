@@ -2,11 +2,16 @@
 // endpoint and the tutor's server-side PRE-synthesis (`api/tutor.ts`). Files
 // under `api/` starting with `_` are not treated as endpoints by Vercel.
 
+import { withUpliftKey } from './_uplift.js';
+
 const URDU_SCRIPT_RE = /[؀-ۿ]/;
 const ROMAN_URDU_RE = /\b(aaj|kal|abhi|ab|phir|lekin|magar|kyun|kyu|kaise|kaisa|kaisi|kaun|kahan|kab|kya|mein|main|mujhe|mujhko|hum|humein|hume|tum|tumhe|tumhein|aap|aapko|yeh|ye|woh|wo|inka|unka|isse|usse|hai|hain|tha|thi|thay|hoga|hogi|hongay|nahi|nai|nahin|karna|karo|kiya|kiye|jana|gaya|gayi|gaye|aana|aya|ayi|bolna|suno|dekho|samajhna|parhna|likhna|seekhna|sikhna|chahiye|chahta|chahti|chahte|acha|accha|theek|thik|sahi|galat|bohat|bahut|bohot|zyada|ziyada|thora|thoda|toh|sirf|yahan|wahan|idhar|udhar|mera|meri|mere|tera|teri|tere|hamara|tumhara|apna|assalam|assalamu|alaikum|walaikum|shukriya|bhai|behen|dost|dosto|beta|beti|yaar|jaldi|pehle|subah|shaam|pata|maloom|zaroor|shayad|bilkul)\b/i;
 
-const UPLIFT_VOICE_ID = 'v_8eelc901';
-const UPLIFT_FORMAT = 'MP3_22050_128';
+// Voice + format are env-overridable so a better persona (Uplift offers
+// Info/Education, Nostalgic News, Dada Jee, Gen Z) can be A/B'd from Vercel
+// env without a code change. Defaults preserve the original behavior.
+const UPLIFT_VOICE_ID = process.env.UPLIFT_VOICE_ID || 'v_8eelc901';
+const UPLIFT_FORMAT = process.env.UPLIFT_TTS_FORMAT || 'MP3_22050_128';
 
 /**
  * Transliterate Roman Urdu → Urdu script via Google Input Tools. (A translate
@@ -32,15 +37,18 @@ export async function toSpeakableText(text: string): Promise<string> {
   return needsTranslit ? await toUrduScript(text) : text;
 }
 
-/** Synthesise `text` to an MP3 buffer with the UpliftAI Urdu voice. Throws on
- *  failure so callers can fall back / log. */
-export async function synthesizeSpeech(text: string, apiKey: string): Promise<Buffer> {
+/** Synthesise `text` to an MP3 buffer with the UpliftAI Urdu voice, rotating
+ *  through the configured API keys on quota/auth rejections. Throws on failure
+ *  so callers can fall back / log. */
+export async function synthesizeSpeech(text: string): Promise<Buffer> {
   const ttsText = await toSpeakableText(text.slice(0, 1000));
-  const response = await fetch('https://api.upliftai.org/v1/synthesis/text-to-speech', {
-    method: 'POST',
-    headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ voiceId: UPLIFT_VOICE_ID, text: ttsText, outputFormat: UPLIFT_FORMAT }),
-  });
+  const response = await withUpliftKey((apiKey) =>
+    fetch('https://api.upliftai.org/v1/synthesis/text-to-speech', {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ voiceId: UPLIFT_VOICE_ID, text: ttsText, outputFormat: UPLIFT_FORMAT }),
+    }),
+  );
   if (!response.ok) throw new Error(`UpliftAI ${response.status}: ${(await response.text()).slice(0, 300)}`);
   return Buffer.from(await response.arrayBuffer());
 }

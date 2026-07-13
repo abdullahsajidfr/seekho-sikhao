@@ -1,5 +1,5 @@
 import React, { useRef, useState, useEffect } from 'react';
-import { View, Text, Pressable, ScrollView, StyleSheet } from 'react-native';
+import { View, Text, Pressable, ScrollView, StyleSheet, KeyboardAvoidingView, Platform } from 'react-native';
 import { submitWorkbook, requestHint, clearWorkbook, sendStudentMessage, setWorkbookActive } from '../../../firebase/session';
 import { useReadAloud } from '../../../hooks/useReadAloud';
 import { useLanguage } from '../../../context/LanguageContext';
@@ -53,7 +53,11 @@ export default function WorkbookScreen({ roomCode, subject, session, inputMode, 
 
   // autoPlay so the AI's hint and graded-submit feedback auto-speak when they land
   // (Issue 5). Only one of Chat/Workbook is mounted at a time, so no double-speak.
-  const { enabled: readAloud, toggle: toggleReadAloud, speak, playingTimestamp, revealProgress } = useReadAloud(messages, roomCode, { autoPlay: true });
+  const { enabled: readAloud, toggle: toggleReadAloud, speak, loading, playingTimestamp, revealProgress } = useReadAloud(messages, roomCode, { autoPlay: true });
+
+  // The tutor is "speaking" while a clip is playing OR still loading; the mic
+  // holds (waitingForAi) until this clears so it never records the AI's voice.
+  const aiSpeaking = playingTimestamp != null || loading;
 
   const currentQuestion = messages.filter((m) => m.workbookQuestion).at(-1)?.workbookQuestion ?? null;
 
@@ -108,8 +112,10 @@ export default function WorkbookScreen({ roomCode, subject, session, inputMode, 
       />
 
       <View style={styles.panels}>
-        {/* LEFT — chat */}
-        <View style={styles.left}>
+        {/* LEFT — chat. Only this panel avoids the keyboard; the canvas (right)
+            must never resize or strokes would distort. KAV pads by the keyboard's
+            overlap with its own frame. */}
+        <KeyboardAvoidingView style={styles.left} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
           <ScrollView
             ref={scrollRef}
             style={styles.chatHistory}
@@ -141,9 +147,9 @@ export default function WorkbookScreen({ roomCode, subject, session, inputMode, 
             {session?.showThinking ? <ThinkingDots /> : null}
           </ScrollView>
           <View style={styles.inputWrap}>
-            <ChatInputBar roomCode={roomCode} initialMode={inputMode} onSend={handleSend} compact />
+            <ChatInputBar roomCode={roomCode} initialMode={inputMode} onSend={handleSend} aiSpeaking={aiSpeaking} compact />
           </View>
-        </View>
+        </KeyboardAvoidingView>
 
         {/* RIGHT — canvas */}
         <View style={styles.right}>
@@ -176,7 +182,7 @@ export default function WorkbookScreen({ roomCode, subject, session, inputMode, 
               <Text style={styles.btnHintText}>{t('hint')}</Text>
             </Pressable>
             <Pressable style={[styles.btn, styles.btnSubmit, (submitted || submitting) && styles.btnDisabled]} disabled={submitted || submitting} onPress={() => { logTap('student:workbook-submit'); handleSubmit(); }}>
-              <Text style={styles.btnSubmitText}>{submitting ? t('sending') : submitted ? 'Submitted' : t('workbook_submit')}</Text>
+              <Text style={styles.btnSubmitText}>{submitting ? t('sending') : submitted ? t('workbook_submitted') : t('workbook_submit')}</Text>
             </Pressable>
           </View>
         </View>

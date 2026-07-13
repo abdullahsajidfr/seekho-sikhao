@@ -2,6 +2,8 @@ import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { TUTOR_SYSTEM_PROMPT } from './_tutorPrompt.js';
 import { subjectGuide } from './_subjectGuides.js';
 import { synthesizeSpeech } from './_tts.js';
+import { upliftKeys } from './_uplift.js';
+import { logUsage } from './_usage.js';
 
 /**
  * AI Tutor (auto mode) — replaces the human "wizard".
@@ -140,14 +142,16 @@ async function rtdbPut(path: string, body: unknown): Promise<void> {
  * failure and the client falls back to the on-demand /api/tts path.
  */
 async function preSynthesizeClip(roomCode: string, timestamp: number, readAloudText: string): Promise<boolean> {
-  const upliftKey = process.env.UPLIFT_API_KEY;
-  if (!upliftKey || !readAloudText.trim()) return false;
+  if (upliftKeys().length === 0 || !readAloudText.trim()) return false;
+  const started = Date.now();
   try {
-    const mp3 = await synthesizeSpeech(readAloudText, upliftKey);
+    const mp3 = await synthesizeSpeech(readAloudText);
     await rtdbPut(`audioClips/${roomCode}/${timestamp}`, { mime: 'audio/mpeg', data: mp3.toString('base64') });
+    await logUsage({ ts: started, api: 'tts', model: 'uplift-tts', ok: true, ms: Date.now() - started, chars: readAloudText.length, roomCode });
     return true;
   } catch (e) {
     console.error(`[tutor] pre-synthesis failed room=${roomCode}: ${e instanceof Error ? e.message : String(e)}`);
+    await logUsage({ ts: started, api: 'tts', model: 'uplift-tts', ok: false, ms: Date.now() - started, chars: readAloudText.length, roomCode });
     return false;
   }
 }
@@ -327,7 +331,14 @@ const GEMINI_RESPONSE_SCHEMA = {
 } as const;
 
 // ── Gemini ─────────────────────────────────────────────────────────────
-async function callGemini(systemPrompt: string, turns: Turn[], apiKey: string): Promise<TutorOutput> {
+interface GeminiCallResult {
+  out: TutorOutput;
+  usedModel: string;
+  tokensIn?: number;
+  tokensOut?: number;
+}
+
+async function callGemini(systemPrompt: string, turns: Turn[], apiKey: string): Promise<GeminiCallResult> {
   const contents = turns.map((t) => {
     const parts: unknown[] = [];
     if (t.image) parts.push({ inline_data: { mime_type: t.image.mimeType, data: t.image.base64 } });
@@ -372,12 +383,18 @@ async function callGemini(systemPrompt: string, turns: Turn[], apiKey: string): 
   const data = (await res.json()) as {
     candidates?: { content?: { parts?: { text?: string }[] } }[];
     promptFeedback?: { blockReason?: string };
+    usageMetadata?: { promptTokenCount?: number; candidatesTokenCount?: number };
   };
   if (data.promptFeedback?.blockReason) {
     throw new Error(`Gemini blocked the prompt: ${data.promptFeedback.blockReason}`);
   }
   const text = data.candidates?.[0]?.content?.parts?.map((p) => p.text ?? '').join('') ?? '';
-  return parseTutorOutput(text);
+  return {
+    out: parseTutorOutput(text),
+    usedModel: model,
+    tokensIn: data.usageMetadata?.promptTokenCount,
+    tokensOut: data.usageMetadata?.candidatesTokenCount,
+  };
 }
 
 // ── Parse + coerce the LLM's JSON into a safe TutorOutput ──────────────
@@ -467,10 +484,17 @@ async function writeReply(roomCode: string, trigger: Trigger, out: TutorOutput):
     },
   });
 
-  // Reset workbook flags. On a submit we also clear the canvas for the next try.
+  // Reset workbook flags. On a submit we also clear the canvas for the next
+  // try; on a CORRECT solve with no follow-up question we close the workbook so
+  // the student app returns to chat, where the "close chat?" prompt renders.
   const wbPatch: Record<string, unknown> =
     trigger === 'workbook'
-      ? { hintRequested: false, submitted: false, canvasImageURL: null }
+      ? {
+          hintRequested: false,
+          submitted: false,
+          canvasImageURL: null,
+          ...(out.isCorrect && !out.attachWorkbook ? { active: false } : {}),
+        }
       : { hintRequested: false };
   await rtdbPatch(`sessions/${roomCode}/workbookState`, wbPatch);
 }
@@ -534,11 +558,31 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       .join('\n\n');
 
     console.log(`[tutor] room=${roomCode} trigger=${trigger} provider=gemini turns=${turns.length}`);
-    const out = await callGemini(systemPrompt, turns, geminiKey);
+    const llmStarted = Date.now();
+    let result: GeminiCallResult;
+    try {
+      result = await callGemini(systemPrompt, turns, geminiKey);
+    } catch (err) {
+      await logUsage({ ts: llmStarted, api: 'tutor', model: GEMINI_MODEL, ok: false, ms: Date.now() - llmStarted, roomCode });
+      throw err;
+    }
+    const out = result.out;
+    await logUsage({
+      ts: llmStarted,
+      api: 'tutor',
+      model: result.usedModel,
+      ok: true,
+      ms: Date.now() - llmStarted,
+      ...(result.tokensIn != null ? { tokensIn: result.tokensIn } : {}),
+      ...(result.tokensOut != null ? { tokensOut: result.tokensOut } : {}),
+      roomCode,
+    });
 
     // Force flag consistency with the trigger so bubble colours are correct.
-    if (trigger === 'hint') out.isHint = true;
-    if (trigger !== 'workbook') out.isCorrect = false;
+    // Chat triggers keep the model's isCorrect: the system prompt sets it when
+    // the child solves their question in chat, and the student app's "close
+    // chat?" prompt keys off it. Only hints can never be "correct".
+    if (trigger === 'hint') { out.isHint = true; out.isCorrect = false; }
 
     await writeReply(roomCode, trigger, out);
 

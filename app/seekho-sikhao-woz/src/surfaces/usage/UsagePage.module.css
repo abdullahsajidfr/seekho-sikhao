@@ -1,0 +1,407 @@
+.page {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: #1a1a2e;
+  color: #e8e8f0;
+  font-family: 'Fredoka', sans-serif;
+}
+
+/* ── Header ─────────────────────────────────────────────────────────── */
+.header {
+  flex-shrink: 0;
+  background: #0f0f1a;
+  border-bottom: 1px solid #2a2a4a;
+  padding: 0 var(--space-4);
+  height: 52px;
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.headerTitle {
+  font-size: 18px;
+  font-weight: 600;
+  color: #ffffff;
+  letter-spacing: 0.03em;
+}
+
+.headerBadge {
+  background: #2ABAF2;
+  color: #000;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 999px;
+}
+
+.headerRight {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.live {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  padding: 3px 9px;
+  border-radius: 999px;
+}
+
+.liveOn {
+  background: rgba(42, 242, 139, 0.14);
+  color: #2AF28B;
+}
+
+.livePast {
+  background: #2a2a4a;
+  color: #8888aa;
+}
+
+.liveDot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.liveOn .liveDot {
+  animation: pulse 1.6s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.35; transform: scale(0.8); }
+}
+
+.recCount {
+  font-size: 12px;
+  color: #8888aa;
+  font-family: monospace;
+}
+
+.dateInput {
+  background: #1a1a2e;
+  border: 1px solid #3a3a5a;
+  border-radius: 8px;
+  color: #e8e8f0;
+  font-family: monospace;
+  font-size: 13px;
+  padding: 6px 10px;
+  color-scheme: dark;
+}
+
+.dateInput:focus {
+  outline: none;
+  border-color: #2ABAF2;
+}
+
+/* ── Scroll body (global css locks html scroll, so scroll here) ─────── */
+.body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: var(--space-3);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+/* ── (a) API tiles ─────────────────────────────────────────────────── */
+.tiles {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-3);
+}
+
+.tile {
+  background: #252540;
+  border-radius: 14px;
+  border-top: 3px solid #2ABAF2;
+  padding: var(--space-3);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.tileHead {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.tileDot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+}
+
+.tileLabel {
+  font-size: 14px;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.tileVendor {
+  margin-left: auto;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #7a7a9a;
+  background: #1f1f38;
+  padding: 2px 7px;
+  border-radius: 999px;
+}
+
+.tileCalls {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.tileCallsNum {
+  font-size: 40px;
+  font-weight: 600;
+  line-height: 1;
+  color: #ffffff;
+  font-variant-numeric: tabular-nums;
+}
+
+.tileCallsUnit {
+  font-size: 13px;
+  color: #8888aa;
+}
+
+.tileStats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  border-top: 1px solid #33334f;
+  padding-top: 12px;
+}
+
+.tileStat {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.tileStatVal {
+  font-size: 17px;
+  font-weight: 600;
+  color: #e8e8f0;
+  font-variant-numeric: tabular-nums;
+}
+
+.tileStatKey {
+  font-size: 11px;
+  color: #7a7a9a;
+}
+
+/* ── Shared card ───────────────────────────────────────────────────── */
+.card {
+  background: #252540;
+  border-radius: 14px;
+  padding: 16px;
+}
+
+.cardHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.cardTitle {
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #8888aa;
+}
+
+.counter {
+  font-size: 11px;
+  background: #3a3a5a;
+  color: #aaaacc;
+  border-radius: 999px;
+  padding: 2px 8px;
+  font-family: monospace;
+}
+
+/* ── (b) Model table ───────────────────────────────────────────────── */
+.tableWrap {
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.table thead th {
+  color: #7a7a9a;
+  font-weight: 600;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 6px 10px;
+  border-bottom: 1px solid #33334f;
+  white-space: nowrap;
+}
+
+.thLeft { text-align: left; }
+.thNum { text-align: right; }
+
+.table tbody td {
+  padding: 8px 10px;
+  border-bottom: 1px solid #2a2a44;
+}
+
+.table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.tdModel {
+  font-family: monospace;
+  color: #cccce0;
+  white-space: nowrap;
+}
+
+.tdNum {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  color: #e8e8f0;
+}
+
+.emptyCell {
+  text-align: center;
+  color: #666688;
+  padding: 24px 0 !important;
+}
+
+/* ── (c) Credit estimates ──────────────────────────────────────────── */
+.credits {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+
+.credit {
+  background: #1f1f38;
+  border-radius: 12px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.creditVal {
+  font-size: 26px;
+  font-weight: 600;
+  color: #ffffff;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+}
+
+.creditKey {
+  font-size: 12px;
+  color: #cccce0;
+  font-weight: 500;
+}
+
+.creditNote {
+  font-size: 11px;
+  color: #7a7a9a;
+  font-family: monospace;
+}
+
+/* ── (d) Recent-calls feed ─────────────────────────────────────────── */
+.feed {
+  display: flex;
+  flex-direction: column;
+}
+
+.feedRow {
+  display: grid;
+  grid-template-columns: 74px 52px 1fr 60px 64px 96px;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 8px;
+  font-size: 12px;
+  border-radius: 6px;
+}
+
+.feedRow:not(.feedHeadRow):nth-child(even) {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.feedHeadRow {
+  color: #7a7a9a;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-bottom: 1px solid #33334f;
+  border-radius: 0;
+  margin-bottom: 2px;
+}
+
+.fTime {
+  font-family: monospace;
+  color: #8888aa;
+}
+
+.apiPill {
+  border: 1px solid #3a3a5a;
+  border-radius: 999px;
+  padding: 1px 7px;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.fModel {
+  font-family: monospace;
+  color: #cccce0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ok { color: #2AF28B; font-weight: 600; }
+.err { color: #F45858; font-weight: 600; }
+
+.fMs {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  color: #e8e8f0;
+}
+
+.fRoom {
+  font-family: monospace;
+  color: #8888aa;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.empty {
+  font-size: 13px;
+  color: #666688;
+  text-align: center;
+  padding: 24px 0;
+}
+
+/* ── Responsive ────────────────────────────────────────────────────── */
+@media (max-width: 860px) {
+  .tiles { grid-template-columns: 1fr; }
+  .credits { grid-template-columns: repeat(2, 1fr); }
+}

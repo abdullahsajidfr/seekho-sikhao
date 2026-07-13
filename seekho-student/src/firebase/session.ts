@@ -27,7 +27,7 @@ export async function createSession(roomCode: string): Promise<void> {
   if (!firebaseEnabled) return;
   const initial: Omit<Session, 'chatHistory' | 'eventLog'> & { chatHistory: null; adminControl: AdminControl } = {
     status: 'idle',
-    language: 'en',
+    language: 'ur',
     subject: null,
     studentMessage: { text: '', type: 'text', photoURL: null, voiceTranscript: null, timestamp: 0 },
     aiResponse: { text: '', attachWorkbook: false, workbookQuestion: '', timestamp: 0 },

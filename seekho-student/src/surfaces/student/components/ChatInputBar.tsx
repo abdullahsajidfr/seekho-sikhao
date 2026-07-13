@@ -54,9 +54,12 @@ interface Props {
   onInputFocus?: () => void;
   /** Narrow (workbook) layout — scales the mic/camera/send icons and text down. */
   compact?: boolean;
+  /** True while the tutor is speaking (or its clip is loading). Arming the mic
+   *  holds until this clears so the recorder never captures the AI's own voice. */
+  aiSpeaking?: boolean;
 }
 
-export default function ChatInputBar({ roomCode, initialMode, onSend, onInputFocus, compact }: Props) {
+export default function ChatInputBar({ roomCode, initialMode, onSend, onInputFocus, compact, aiSpeaking }: Props) {
   const { t } = useLanguage();
   const [text, setText] = useState('');
   const [busy, setBusy] = useState(false);
@@ -64,6 +67,9 @@ export default function ChatInputBar({ roomCode, initialMode, onSend, onInputFoc
   const [photoError, setPhotoError] = useState(false);
   const [elapsed, setElapsed] = useState(0);
   const [showCamera, setShowCamera] = useState(initialMode === 'photo');
+  // The child asked to speak while the tutor was still talking: we hold here and
+  // start recording the moment the AI finishes (see the aiSpeaking effect below).
+  const [waitingForAi, setWaitingForAi] = useState(false);
   const { state: srState, transcript, audioUri, start, stop, reset } = useSpeechRecognition();
 
   // Voice provenance for the text currently in the box: when the child dictates,
@@ -77,10 +83,35 @@ export default function ChatInputBar({ roomCode, initialMode, onSend, onInputFoc
   const voiceClipsRef = useRef<string[]>([]);
   const voiceTranscriptRef = useRef('');
 
+  // Entering the chat in Speak mode arms the mic. requestMic() waits for the AI to
+  // stop talking before it records, so the mount-time aiSpeaking value is enough —
+  // the effect below covers the case where the tutor is still speaking now.
   useEffect(() => {
-    if (initialMode === 'voice') start();
+    if (initialMode === 'voice') requestMic();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Arm the mic without ever recording over the tutor. If the AI is speaking, hold
+  // (show the waiting pill) and let the effect below start the moment it stops;
+  // otherwise start now — only from idle, so we never restart an active clip.
+  function requestMic() {
+    if (aiSpeaking) {
+      setWaitingForAi(true);
+    } else if (srState === 'idle') {
+      start();
+    }
+  }
+
+  // The tutor stopped talking while the child was waiting to speak → record now.
+  // Only fires for a pending request; a normal AI turn never auto-arms the mic
+  // (that would hijack the child into recording after every answer).
+  useEffect(() => {
+    if (waitingForAi && !aiSpeaking) {
+      setWaitingForAi(false);
+      if (srState === 'idle') start();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [aiSpeaking, waitingForAi, srState]);
 
   const isListening = srState === 'listening';
   const isTranscribing = srState === 'transcribing';
@@ -149,6 +180,7 @@ export default function ChatInputBar({ roomCode, initialMode, onSend, onInputFoc
     setText('');
     voiceClipsRef.current = [];
     voiceTranscriptRef.current = '';
+    setWaitingForAi(false);
   }
 
   function finishVoice() {
@@ -161,6 +193,7 @@ export default function ChatInputBar({ roomCode, initialMode, onSend, onInputFoc
   function cancelVoice() {
     logTap('student:voice-cancel');
     reset();
+    setWaitingForAi(false);
   }
 
   async function processPhoto(uri: string) {
@@ -233,6 +266,13 @@ export default function ChatInputBar({ roomCode, initialMode, onSend, onInputFoc
         </View>
       ) : null}
 
+      {waitingForAi && !isListening && !isTranscribing ? (
+        <View style={styles.transcribingRow}>
+          <ActivityIndicator color={colors.primary} />
+          <Text style={compact ? styles.voiceDisplayCompact : styles.voiceDisplay}>{t('waiting_for_ai')}</Text>
+        </View>
+      ) : null}
+
       {!isListening && !isTranscribing ? (
         <View style={styles.inputArea}>
           <TextInput
@@ -253,7 +293,7 @@ export default function ChatInputBar({ roomCode, initialMode, onSend, onInputFoc
       {!isListening && !isTranscribing ? (
         <View style={styles.actions}>
           <View style={[styles.leftIcons, compact && styles.leftIconsCompact]}>
-            <Pressable style={styles.iconBtn} onPress={() => { logTap('student:mic'); start(); }} accessibilityLabel="Voice input">
+            <Pressable style={styles.iconBtn} onPress={() => { logTap('student:mic'); if (waitingForAi) setWaitingForAi(false); else requestMic(); }} accessibilityLabel="Voice input">
               <MicIcon width={micW} height={micW} color={colors.textPrimary} />
             </Pressable>
             <Pressable style={styles.iconBtn} onPress={() => { logTap('student:camera'); setShowCamera(true); }} disabled={busy} accessibilityLabel="Camera">

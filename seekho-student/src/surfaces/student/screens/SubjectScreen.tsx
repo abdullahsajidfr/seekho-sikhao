@@ -73,8 +73,8 @@ export default function SubjectScreen({ roomCode, studentName, isNew, onSelect, 
 
       <View style={styles.body}>
         <View style={styles.greeting}>
-          <Text style={styles.greetName}>Hello{studentName ? `, ${studentName}` : ''}!</Text>
-          <Text style={styles.greetSub}>What would you like to learn today?</Text>
+          <Text style={styles.greetName}>{t('greet_hello')}{studentName ? `, ${studentName}` : ''}!</Text>
+          <Text style={styles.greetSub}>{t('subject_heading')}</Text>
         </View>
 
         <View style={styles.grid}>
@@ -122,7 +122,10 @@ const styles = StyleSheet.create({
   },
   helpMark: { fontFamily: fonts.heading, fontSize: 22, lineHeight: 26, color: colors.primary, marginTop: -1 },
   body: { flex: 1, paddingHorizontal: 47, paddingVertical: 32, gap: 56 },
-  greeting: { gap: 6 },
+  // Share the grid's centred max-width column so the greeting's left edge lines
+  // up with the first subject-card column on wide iPads (body stretches full
+  // width, but the grid is capped at 1055 and centred).
+  greeting: { gap: 6, width: '100%', maxWidth: 1055, alignSelf: 'center' },
   greetName: { fontFamily: fonts.heading, fontSize: 36, lineHeight: 42, color: colors.textPrimary },
   greetSub: { fontFamily: fonts.heading, fontSize: 24, lineHeight: 33, color: colors.textPrimary },
   grid: {

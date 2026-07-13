@@ -1,9 +1,11 @@
 import { db, firebaseEnabled } from './config';
 import { ref, set, update, push, get, onValue, off } from 'firebase/database';
-import type { Session, AiResponse, Greetings, StudentMessageType, ChatMessage } from '../types/session';
+import type { Session, AiResponse, Greetings, StudentMessagePayload, ChatMessage } from '../types/session';
 import type { AdminControl } from '../types/admin';
 import { demoSession } from './demo';
 import { triggerTutor } from '../lib/tutor';
+import { uploadVoice } from './storage';
+import { logEvent } from './admin';
 
 // ── Helpers ───────────────────────────────────────────────────────────
 
@@ -127,30 +129,53 @@ export async function setSubject(roomCode: string, subject: string): Promise<voi
 
 export async function sendStudentMessage(
   roomCode: string,
-  payload: { text: string; type: StudentMessageType; photoURL?: string; voiceTranscript?: string }
+  payload: StudentMessagePayload
 ): Promise<void> {
   if (!firebaseEnabled) return;
+  // Pull `audioUri` out explicitly: it is a LOCAL file URI and must never be
+  // written to the database — only the uploaded `audioURL` (below) is persisted.
+  const { text, type, photoURL, voiceTranscript, audioUri } = payload;
   const timestamp = Date.now();
   const historyRef = ref(db, `sessions/${roomCode}/chatHistory`);
-  await push(historyRef, {
+  const msgRef = push(historyRef, {
     role: 'student',
-    text: payload.text,
-    type: payload.type,
-    photoURL: payload.photoURL ?? null,
+    text,
+    type,
+    photoURL: photoURL ?? null,
     timestamp,
   });
+  await msgRef;
   await update(sessionRef(roomCode), {
     studentMessage: {
-      ...payload,
+      text,
+      type,
       timestamp,
-      photoURL: payload.photoURL ?? null,
-      voiceTranscript: payload.voiceTranscript ?? null,
+      photoURL: photoURL ?? null,
+      voiceTranscript: voiceTranscript ?? null,
     },
     status: 'student_sent',
     showThinking: true, // waiting for the AI reply — dots show until it lands
   });
   // Kick the server-side AI tutor to read this message and reply (Item J).
+  // This fires BEFORE the (slow, optional) audio upload below so tutor timing is
+  // unchanged whether or not the child spoke their question.
   triggerTutor(roomCode);
+
+  // Best-effort voice-audio persistence. The transcript message is already sent
+  // and the tutor already triggered; here we only try to attach the recorded
+  // clip's download URL to that message. A failure (e.g. the Storage bucket is
+  // not provisioned yet) must NEVER block or break the chat — it is caught and
+  // logged as `voice:upload-failed` so it stays visible in the research data.
+  const key = msgRef.key;
+  if (type === 'voice' && audioUri && key) {
+    uploadVoice(roomCode, audioUri, timestamp)
+      .then((audioURL) =>
+        update(ref(db, `sessions/${roomCode}/chatHistory/${key}`), { audioURL }).catch(() => {})
+      )
+      .catch(() => {
+        logEvent(roomCode, 'voice:upload-failed', 'student_app', {});
+      });
+  }
 }
 
 export async function sendGreeting(roomCode: string, text: string, readAloudText?: string): Promise<void> {

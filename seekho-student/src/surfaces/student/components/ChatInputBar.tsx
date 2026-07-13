@@ -8,7 +8,7 @@ import { urduAwareTextStyle } from '../../../lib/textStyle';
 import CameraScreen from './CameraScreen';
 import { MicIcon, CameraIcon, SendCircle, Trash } from '../../../components/icons';
 import { colors, fonts } from '../../../theme';
-import type { MessageType, StudentMessageType } from '../../../types/session';
+import type { MessageType, StudentMessagePayload } from '../../../types/session';
 
 const BAR_COUNT = 36;
 const BAR_HEIGHTS = Array.from({ length: BAR_COUNT }, (_, i) => {
@@ -50,7 +50,7 @@ function WaveBars() {
 interface Props {
   roomCode: string;
   initialMode?: MessageType;
-  onSend: (payload: { text: string; type: StudentMessageType; photoURL?: string; voiceTranscript?: string }) => void;
+  onSend: (payload: StudentMessagePayload) => void;
   onInputFocus?: () => void;
   /** Narrow (workbook) layout — scales the mic/camera/send icons and text down. */
   compact?: boolean;
@@ -64,7 +64,15 @@ export default function ChatInputBar({ roomCode, initialMode, onSend, onInputFoc
   const [photoError, setPhotoError] = useState(false);
   const [elapsed, setElapsed] = useState(0);
   const [showCamera, setShowCamera] = useState(initialMode === 'photo');
-  const { state: srState, transcript, start, stop, reset } = useSpeechRecognition();
+  const { state: srState, transcript, audioUri, start, stop, reset } = useSpeechRecognition();
+
+  // Voice provenance for the text currently in the box: when the child dictates,
+  // we drop the transcript into the editable input (so they can review/edit) but
+  // remember it came from the mic — and hold onto the recorded clip — so the sent
+  // message is a distinguishable `voice` message carrying its audio. Refs (not
+  // state) because they're only read at send time and must not trigger renders.
+  const voiceOriginatedRef = useRef(false);
+  const voiceAudioUriRef = useRef<string | null>(null);
 
   useEffect(() => {
     if (initialMode === 'voice') start();
@@ -78,7 +86,13 @@ export default function ChatInputBar({ roomCode, initialMode, onSend, onInputFoc
   // so they can review/edit before sending; on failure just return to typing.
   useEffect(() => {
     if (srState === 'done') {
-      if (transcript) setText((prev) => (prev.trim() ? `${prev.trim()} ${transcript}` : transcript));
+      if (transcript) {
+        setText((prev) => (prev.trim() ? `${prev.trim()} ${transcript}` : transcript));
+        // Mark this text as voice-originated and remember the clip to upload, so
+        // it is sent as a `voice` message even after the child edits the words.
+        voiceOriginatedRef.current = true;
+        voiceAudioUriRef.current = audioUri ?? null;
+      }
       reset();
     } else if (srState === 'error') {
       reset();
@@ -98,14 +112,33 @@ export default function ChatInputBar({ roomCode, initialMode, onSend, onInputFoc
     return () => clearInterval(id);
   }, [isListening]);
 
+  // Clearing the box drops voice provenance so a freshly typed question is sent
+  // as plain text (and we don't upload a stale clip for it). Editing the words
+  // while keeping content preserves the voice origin.
+  function handleChangeText(value: string) {
+    setText(value);
+    if (!value.trim()) {
+      voiceOriginatedRef.current = false;
+      voiceAudioUriRef.current = null;
+    }
+  }
+
   function handleSend() {
     if (busy) return;
-    if (text.trim()) {
-      logTap('student:send');
-      logInput('student:chat-message', text.trim());
-      onSend({ text: text.trim(), type: 'text' });
-      setText('');
+    const trimmed = text.trim();
+    if (!trimmed) return;
+    logTap('student:send');
+    logInput('student:chat-message', trimmed);
+    if (voiceOriginatedRef.current) {
+      // Voice-originated: send as a `voice` message with the transcript + the
+      // recorded clip (uploaded best-effort in sendStudentMessage).
+      onSend({ text: trimmed, type: 'voice', voiceTranscript: trimmed, audioUri: voiceAudioUriRef.current ?? undefined });
+    } else {
+      onSend({ text: trimmed, type: 'text' });
     }
+    setText('');
+    voiceOriginatedRef.current = false;
+    voiceAudioUriRef.current = null;
   }
 
   function finishVoice() {
@@ -197,7 +230,7 @@ export default function ChatInputBar({ roomCode, initialMode, onSend, onInputFoc
             placeholder={t('chat_placeholder')}
             placeholderTextColor={colors.textMuted2}
             value={text}
-            onChangeText={setText}
+            onChangeText={handleChangeText}
             onFocus={onInputFocus}
             multiline
             returnKeyType="send"

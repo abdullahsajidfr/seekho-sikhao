@@ -13,7 +13,7 @@ import { ReadAloudPill, Zap, Speaker } from '../../../components/icons';
 import { logTap } from '../../../lib/autolog';
 import { urduAwareTextStyle } from '../../../lib/textStyle';
 import { colors, fonts } from '../../../theme';
-import type { MessageType, StudentMessageType, Session, Subject } from '../../../types/session';
+import type { MessageType, StudentMessagePayload, Session, Subject } from '../../../types/session';
 
 interface Props {
   roomCode: string;
@@ -57,7 +57,7 @@ export default function WorkbookScreen({ roomCode, subject, session, inputMode, 
 
   const currentQuestion = messages.filter((m) => m.workbookQuestion).at(-1)?.workbookQuestion ?? null;
 
-  async function handleSend(payload: { text: string; type: StudentMessageType; photoURL?: string; voiceTranscript?: string }) {
+  async function handleSend(payload: StudentMessagePayload) {
     await sendStudentMessage(roomCode, payload);
   }
 

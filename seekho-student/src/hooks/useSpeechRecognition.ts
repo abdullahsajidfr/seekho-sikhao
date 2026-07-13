@@ -56,6 +56,9 @@ export function useSpeechRecognition() {
   const [state, setState] = useState<SpeechState>('idle');
   const [transcript, setTranscript] = useState('');
   const [interim, setInterim] = useState('');
+  // Local file URI of the last captured clip, exposed so ChatInputBar can upload
+  // it to Storage when the child sends the (voice) message.
+  const [audioUri, setAudioUri] = useState<string | null>(null);
 
   const supported = true;
 
@@ -74,6 +77,9 @@ export function useSpeechRecognition() {
     try {
       if (recorder.isRecording) await recorder.stop();
       const uri = recorder.uri;
+      // Keep the clip URI around even if transcription fails — the send path
+      // still uploads the audio best-effort.
+      setAudioUri(uri ?? null);
       const text = uri ? await transcribeAudio(uri, 'audio/wav') : '';
       setTranscript(text);
       setState('done');
@@ -87,6 +93,7 @@ export function useSpeechRecognition() {
     clearSafetyTimer();
     setTranscript('');
     setInterim('');
+    setAudioUri(null);
     try {
       const { granted } = await requestRecordingPermissionsAsync();
       if (!granted) { setState('error'); return; }
@@ -106,6 +113,7 @@ export function useSpeechRecognition() {
     clearSafetyTimer();
     setTranscript('');
     setInterim('');
+    setAudioUri(null);
     setState('idle');
     // Best-effort: abandon any in-flight recording so a fresh start is clean.
     try { if (recorder.isRecording) recorder.stop(); } catch { /* ignore */ }
@@ -114,5 +122,5 @@ export function useSpeechRecognition() {
   // Release the timer if the consuming screen unmounts mid-recording.
   useEffect(() => clearSafetyTimer, [clearSafetyTimer]);
 
-  return { supported, state, transcript, interim, start, stop, reset };
+  return { supported, state, transcript, interim, audioUri, start, stop, reset };
 }

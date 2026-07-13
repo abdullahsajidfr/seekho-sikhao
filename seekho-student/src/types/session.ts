@@ -24,6 +24,20 @@ export type StudentMessageType = Exclude<MessageType, 'workbook_answer'>;
 
 export type MessageRole = 'student' | 'ai';
 
+/**
+ * What the chat input bar hands to `sendStudentMessage`. `audioUri` is a LOCAL
+ * device file URI for a recorded voice clip — it is uploaded to Storage on a
+ * best-effort basis and is NEVER written to the database; only the resulting
+ * `audioURL` download link is persisted onto the sent message.
+ */
+export interface StudentMessagePayload {
+  text: string;
+  type: StudentMessageType;
+  photoURL?: string;
+  voiceTranscript?: string;
+  audioUri?: string;
+}
+
 export interface ChatMessage {
   id: string;
   role: MessageRole;
@@ -40,6 +54,10 @@ export interface ChatMessage {
   /** AI reply whose Urdu audio was pre-synthesised server-side and stored at
    *  `audioClips/{roomCode}/{timestamp}` — play that instead of re-synthesising. */
   audioReady?: boolean;
+  /** Storage download URL for a voice message's recorded audio, uploaded
+   *  best-effort to `sessions/{room}/voice/{timestamp}.wav`. Absent when the
+   *  message is not voice, or when the upload has not (yet) succeeded. */
+  audioURL?: string;
   timestamp: number;
 }
 

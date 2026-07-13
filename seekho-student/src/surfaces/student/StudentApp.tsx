@@ -11,6 +11,7 @@ import InputModeScreen from './screens/InputModeScreen';
 import ChatScreen from './screens/ChatScreen';
 import WorkbookScreen from './screens/WorkbookScreen';
 import EndSessionModal from './components/EndSessionModal';
+import SmileyometerOverlay from './components/SmileyometerOverlay';
 import { colors, fonts } from '../../theme';
 import type { MessageType, Subject, PastChat } from '../../types/session';
 
@@ -140,6 +141,10 @@ export default function StudentApp({ roomCode, studentName, isNew, onExit }: Pro
 
   const showLogout = (localLogout || !!session?.showEndModal) && screen !== 'chat' && screen !== 'workbook';
 
+  // Admin-driven Smileyometer feedback prompt (1–6, or null). Captured into a
+  // local so TS narrows it to a number for the overlay below.
+  const smileyometerQuestion = session?.adminControl?.smileyometerQuestion ?? null;
+
   return (
     <View style={styles.root}>
       {screen === 'subjects' && (
@@ -223,6 +228,15 @@ export default function StudentApp({ roomCode, studentName, isNew, onExit }: Pro
           roomCode={roomCode}
           onLoggedOut={() => { setLocalLogout(false); onExit(); }}
           onCancel={() => setLocalLogout(false)}
+        />
+      )}
+
+      {/* Floats above every screen — the child must answer before it clears. */}
+      {smileyometerQuestion != null && (
+        <SmileyometerOverlay
+          roomCode={roomCode}
+          questionNum={smileyometerQuestion}
+          adminControl={session?.adminControl}
         />
       )}
     </View>

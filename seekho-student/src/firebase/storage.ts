@@ -63,3 +63,20 @@ export async function uploadPhoto(roomCode: string, uri: string): Promise<string
     throw err;
   }
 }
+
+/**
+ * Upload a recorded voice clip (WAV) to `sessions/{room}/voice/{timestamp}.wav`
+ * and return its download URL. `timestamp` is passed so the file lines up with
+ * the chat message it belongs to. NOTE: the Storage bucket may not be
+ * provisioned on the live project yet — callers MUST treat this as best-effort
+ * and never block the chat flow on it (see `sendStudentMessage`).
+ */
+export async function uploadVoice(roomCode: string, uri: string, timestamp?: number): Promise<string> {
+  if (!firebaseEnabled) return uri;
+  try {
+    return await uploadUri(`sessions/${roomCode}/voice/${timestamp ?? Date.now()}.wav`, uri);
+  } catch (err) {
+    console.log('[storage] uploadVoice failed', err);
+    throw err;
+  }
+}

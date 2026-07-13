@@ -52,6 +52,65 @@ export function logEvent(
   // (e.g. the entry keypad) fall back to a global telemetry bucket.
   const path = roomCode ? `sessions/${roomCode}/eventLog` : `telemetry/${source}/eventLog`;
   push(ref(db, path), entry).catch(() => {});
+
+  // Also mirror the event to a Google Sheet (one tab per user) when configured.
+  logToSheet(roomCode, label, type, source, now, relativeMs, ctx);
+}
+
+/**
+ * Fire-and-forget mirror of each event to a Google Apps Script web app that
+ * writes one worksheet (tab) PER USER inside a single spreadsheet. Set
+ * `EXPO_PUBLIC_SHEETS_ENDPOINT` to the deployed /exec URL to enable it; unset =
+ * no-op. Never throws / never blocks the UI. See docs/google-sheets-logging.md
+ * for the Apps Script to paste + deploy.
+ */
+function logToSheet(
+  roomCode: string,
+  label: string,
+  type: 'auto' | 'manual',
+  source: 'student_app' | 'admin',
+  now: number,
+  relativeMs: number,
+  ctx: {
+    studentName?: string;
+    grade?: string;
+    activeTask?: string | null;
+    kind?: LogKind;
+    route?: string;
+    target?: string;
+    x?: number;
+    y?: number;
+  },
+): void {
+  const endpoint = process.env.EXPO_PUBLIC_SHEETS_ENDPOINT;
+  if (!endpoint) return;
+  // One tab per user: prefer the student's name, else the room code.
+  const user = (ctx.studentName && ctx.studentName.trim()) || roomCode || 'unknown';
+  try {
+    fetch(endpoint, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        user,
+        roomCode,
+        studentName: ctx.studentName ?? '',
+        grade: ctx.grade ?? '',
+        timestamp: new Date(now).toISOString(),
+        relativeMs,
+        type,
+        source,
+        kind: ctx.kind ?? '',
+        label,
+        route: ctx.route ?? '',
+        target: ctx.target ?? '',
+        taskPhase: ctx.activeTask ?? '',
+        x: ctx.x ?? '',
+        y: ctx.y ?? '',
+      }),
+    }).catch(() => {});
+  } catch {
+    /* never blocks the UI */
+  }
 }
 
 export async function setSmileyometerQuestion(roomCode: string, question: number | null): Promise<void> {

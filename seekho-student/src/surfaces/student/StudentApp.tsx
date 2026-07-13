@@ -6,7 +6,6 @@ import { firebaseEnabled } from '../../firebase/config';
 import { archiveCurrentChat, clearCurrentChat, resumePastChat, setWorkbookActive, setShowEndModal } from '../../firebase/session';
 import { logEvent } from '../../firebase/admin';
 import { useLogContext } from '../../lib/autolog';
-import LoginScreen from './screens/LoginScreen';
 import SubjectScreen from './screens/SubjectScreen';
 import InputModeScreen from './screens/InputModeScreen';
 import ChatScreen from './screens/ChatScreen';
@@ -15,23 +14,24 @@ import EndSessionModal from './components/EndSessionModal';
 import { colors, fonts } from '../../theme';
 import type { MessageType, Subject, PastChat } from '../../types/session';
 
-type Screen = 'login' | 'subjects' | 'inputMode' | 'chat' | 'workbook';
+type Screen = 'subjects' | 'inputMode' | 'chat' | 'workbook';
 
 interface Props {
   roomCode: string;
+  studentName: string;
+  isNew: boolean;
   onExit: () => void;
 }
 
-export default function StudentApp({ roomCode, onExit }: Props) {
+export default function StudentApp({ roomCode, studentName, isNew, onExit }: Props) {
   const { session, loading } = useSession(roomCode);
   const { setLanguage } = useLanguage();
 
   useLogContext(roomCode, session?.adminControl);
 
-  const [screen, setScreen] = useState<Screen>('login');
+  const [screen, setScreen] = useState<Screen>('subjects');
   const [inputMode, setInputMode] = useState<MessageType>('text');
   const [subject, setSubject] = useState<Subject | null>(null);
-  const [studentName, setStudentName] = useState('');
   const [localLogout, setLocalLogout] = useState(false);
 
   const sessionRef = useRef(session);
@@ -52,10 +52,38 @@ export default function StudentApp({ roomCode, onExit }: Props) {
     if (session?.language) setLanguage(session.language);
   }, [session?.language, setLanguage]);
 
+  // Once the child's question is fully solved — the AI marked an answer correct
+  // and attached no further practice — prompt them to close the chat. Otherwise
+  // kids keep asking follow-ups in one ever-growing chat, so the whole history is
+  // re-sent to the model every turn (needless API cost). Closing archives the
+  // chat, so the next question starts with a fresh, empty context. `null` = not
+  // yet initialised: the first run marks everything already present as handled so
+  // resuming a finished chat doesn't immediately re-prompt.
+  const promptedCloseRef = useRef<number | null>(null);
+  useEffect(() => {
+    const aiMsgs = session?.chatHistory
+      ? Object.values(session.chatHistory).filter((m) => m.role === 'ai').sort((a, b) => a.timestamp - b.timestamp)
+      : [];
+    const lastAi = aiMsgs.at(-1);
+    if (promptedCloseRef.current === null) {
+      promptedCloseRef.current = lastAi?.timestamp ?? 0;
+      return;
+    }
+    if (!lastAi || !lastAi.isCorrect || lastAi.workbookQuestion) return;
+    if (lastAi.timestamp <= promptedCloseRef.current) return;
+    promptedCloseRef.current = lastAi.timestamp;
+    if (!session?.showEndModal) setShowEndModal(roomCode, true);
+  }, [session?.chatHistory, session?.showEndModal, roomCode]);
+
   // Wizard-driven workbook open/close (real Firebase). In demo the ChatScreen
   // "Try this question" button opens the workbook locally (see onOpenWorkbook).
   useEffect(() => {
-    if (session?.workbookState.active && screen !== 'workbook') setScreen('workbook');
+    // The workbook is only ever a step WITHIN a chat, so only auto-open it from
+    // the chat screen (needs a selected subject). Ignoring the flag elsewhere
+    // stops a stale `workbookState.active` (left over from a previous session)
+    // from forcing the workbook screen before a subject is picked — which would
+    // render nothing (subject is null) and blank the app right after login.
+    if (session?.workbookState.active && screen === 'chat' && subject) setScreen('workbook');
     if (!session?.workbookState.active && screen === 'workbook') setScreen('chat');
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [session?.workbookState.active]);
@@ -68,11 +96,19 @@ export default function StudentApp({ roomCode, onExit }: Props) {
     );
   }
 
+  // Past Questions are scoped to the currently-selected subject — a chat archived
+  // under Maths must not surface under English. Chats archived before subjects
+  // were tagged (no `subject` field) are only shown when no subject is selected.
   const pastChats = session?.pastChats
-    ? Object.values(session.pastChats).sort((a, b) => b.endedAt - a.endedAt)
+    ? Object.values(session.pastChats)
+        .filter((c) => (subject ? c.subject === subject : true))
+        .sort((a, b) => b.endedAt - a.endedAt)
     : [];
 
   async function handleChatBack(chatName?: string) {
+    // Leaving the chat dismisses any pending close-chat prompt so its shared
+    // showEndModal flag can't resurface as a spurious logout modal on Home.
+    if (session?.showEndModal) setShowEndModal(roomCode, false);
     if (session?.chatHistory && !archivingRef.current) {
       archivingRef.current = true;
       await archiveCurrentChat(roomCode, chatName);
@@ -82,6 +118,7 @@ export default function StudentApp({ roomCode, onExit }: Props) {
   }
 
   async function handleDeleteChat() {
+    if (session?.showEndModal) setShowEndModal(roomCode, false);
     await clearCurrentChat(roomCode);
     setScreen('inputMode');
   }
@@ -105,14 +142,11 @@ export default function StudentApp({ roomCode, onExit }: Props) {
 
   return (
     <View style={styles.root}>
-      {screen === 'login' && (
-        <LoginScreen onLogin={(name) => { setStudentName(name); log('screen:login_complete'); setScreen('subjects'); }} />
-      )}
-
       {screen === 'subjects' && (
         <SubjectScreen
           roomCode={roomCode}
           studentName={studentName}
+          isNew={isNew}
           onLogout={requestLogout}
           onSelect={async (s) => {
             if (session?.chatHistory && !archivingRef.current) {
@@ -132,7 +166,20 @@ export default function StudentApp({ roomCode, onExit }: Props) {
           subject={subject}
           roomCode={roomCode}
           pastChats={pastChats}
-          onSelect={(mode) => { setInputMode(mode); setScreen('chat'); log('screen:chat'); }}
+          onSelect={async (mode) => {
+            setInputMode(mode);
+            // Type/Speak/Photo always start a FRESH chat: archive whatever chat
+            // is open (which clears chatHistory) so the subject greeting fires
+            // again for a brand-new conversation. Past Questions still resume via
+            // onViewPastChat below. (Item 2)
+            if (session?.chatHistory && !archivingRef.current) {
+              archivingRef.current = true;
+              await archiveCurrentChat(roomCode);
+              archivingRef.current = false;
+            }
+            setScreen('chat');
+            log('screen:chat');
+          }}
           onBack={() => setScreen('subjects')}
           onViewPastChat={async (chat) => { log('past_chat_opened'); await handleViewPastChat(chat); }}
           log={log}

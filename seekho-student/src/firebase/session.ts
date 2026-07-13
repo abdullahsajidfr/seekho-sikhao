@@ -3,6 +3,7 @@ import { ref, set, update, push, get, onValue, off } from 'firebase/database';
 import type { Session, AiResponse, Greetings, StudentMessageType, ChatMessage } from '../types/session';
 import type { AdminControl } from '../types/admin';
 import { demoSession } from './demo';
+import { triggerTutor } from '../lib/tutor';
 
 // ── Helpers ───────────────────────────────────────────────────────────
 
@@ -29,7 +30,7 @@ export async function createSession(roomCode: string): Promise<void> {
     studentMessage: { text: '', type: 'text', photoURL: null, voiceTranscript: null, timestamp: 0 },
     aiResponse: { text: '', attachWorkbook: false, workbookQuestion: '', timestamp: 0 },
     workbookState: { active: false, submitted: false, hintRequested: false, canvasImageURL: null },
-    showThinking: true,
+    showThinking: false,
     showEndModal: false,
     greetings: {
       Mathematics: 'Assalamu Alaikum! Aaj Maths mein kya seekhna chahte ho?',
@@ -76,7 +77,7 @@ export async function resetSession(roomCode: string): Promise<void> {
     studentMessage: { text: '', type: 'text', photoURL: null, voiceTranscript: null, timestamp: 0 },
     aiResponse: { text: '', attachWorkbook: false, workbookQuestion: '', timestamp: 0 },
     workbookState: { active: false, submitted: false, hintRequested: false, canvasImageURL: null },
-    showThinking: true,
+    showThinking: false,
     showEndModal: false,
     chatHistory: null,
     pastChats: null,
@@ -93,11 +94,17 @@ export async function archiveCurrentChat(roomCode: string, chatName?: string): P
   const firstStudent = sorted.find((m) => m.role === 'student');
   const displayName = chatName || firstStudent?.text || 'New Chat';
 
+  // Tag the archived chat with the subject it belonged to so Past Questions stay
+  // scoped per subject (a Maths chat must not appear under English).
+  const subjSnap = await get(ref(db, `sessions/${roomCode}/subject`));
+  const subject = subjSnap.val() as string | null;
+
   const pastChatsRef = ref(db, `sessions/${roomCode}/pastChats`);
   const newRef = push(pastChatsRef);
   await set(newRef, {
     id: newRef.key,
     firstQuestion: displayName,
+    ...(subject ? { subject } : {}),
     startedAt: sorted[0]?.timestamp ?? Date.now(),
     endedAt: Date.now(),
     messages,
@@ -106,7 +113,7 @@ export async function archiveCurrentChat(roomCode: string, chatName?: string): P
   await update(sessionRef(roomCode), {
     chatHistory: null,
     status: 'idle',
-    showThinking: true,
+    showThinking: false,
     workbookState: { active: false, submitted: false, hintRequested: false, canvasImageURL: null },
   });
 }
@@ -140,8 +147,10 @@ export async function sendStudentMessage(
       voiceTranscript: payload.voiceTranscript ?? null,
     },
     status: 'student_sent',
-    showThinking: true,
+    showThinking: true, // waiting for the AI reply — dots show until it lands
   });
+  // Kick the server-side AI tutor to read this message and reply (Item J).
+  triggerTutor(roomCode);
 }
 
 export async function sendGreeting(roomCode: string, text: string, readAloudText?: string): Promise<void> {
@@ -184,7 +193,9 @@ export async function clearWorkbook(roomCode: string): Promise<void> {
 
 export async function requestHint(roomCode: string): Promise<void> {
   if (!firebaseEnabled) return;
-  await update(sessionRef(roomCode), { 'workbookState/hintRequested': true });
+  await update(sessionRef(roomCode), { 'workbookState/hintRequested': true, showThinking: true });
+  // Ask the AI tutor to produce a hint (Item J).
+  triggerTutor(roomCode);
 }
 
 export async function submitWorkbook(roomCode: string, canvasImageURL?: string): Promise<void> {
@@ -197,7 +208,10 @@ export async function submitWorkbook(roomCode: string, canvasImageURL?: string):
       canvasImageURL: canvasImageURL ?? null,
     },
     status: 'workbook_submitted',
+    showThinking: true,
   });
+  // Ask the AI tutor to grade the submitted working (Item J).
+  triggerTutor(roomCode);
 }
 
 export async function endSession(roomCode: string): Promise<void> {
@@ -246,6 +260,12 @@ export async function setLanguage(roomCode: string, language: 'en' | 'ur'): Prom
   await update(sessionRef(roomCode), { language });
 }
 
+/** Store the child's name on the session (used for logging + the Sheets tab). */
+export async function setStudentIdentity(roomCode: string, studentName: string): Promise<void> {
+  if (!firebaseEnabled) return;
+  await update(ref(db, `sessions/${roomCode}/adminControl`), { studentName });
+}
+
 export async function setShowEndModal(roomCode: string, show: boolean): Promise<void> {
   if (!firebaseEnabled) return;
   await update(sessionRef(roomCode), { showEndModal: show });
@@ -266,14 +286,14 @@ export async function resumePastChat(roomCode: string, chatId: string): Promise<
   await update(sessionRef(roomCode), {
     chatHistory: messages,
     status: 'idle',
-    showThinking: true,
+    showThinking: false,
     workbookState: { active: false, submitted: false, hintRequested: false, canvasImageURL: null },
   });
 }
 
 export async function clearCurrentChat(roomCode: string): Promise<void> {
   if (!firebaseEnabled) return;
-  await update(sessionRef(roomCode), { chatHistory: null, status: 'idle', showThinking: true });
+  await update(sessionRef(roomCode), { chatHistory: null, status: 'idle', showThinking: false });
 }
 
 export async function renamePastChat(roomCode: string, chatId: string, newName: string): Promise<void> {

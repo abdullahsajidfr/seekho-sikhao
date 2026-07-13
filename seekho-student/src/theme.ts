@@ -26,7 +26,14 @@ export const colors = {
 export const fonts = {
   heading: 'Fredoka_500Medium',
   headingRegular: 'Fredoka_400Regular',
-  body: 'Dongle_400Regular',
+  // Body switched from Dongle (a very tall, condensed face) to Quicksand, which
+  // has normal, wider proportions and a much larger x-height — so every body
+  // fontSize below was re-tuned DOWN (~0.7×) and lineHeights loosened so the
+  // text keeps the same visual footprint and Quicksand's descenders never clip.
+  // Body uses Quicksand MEDIUM (500) for a slightly thicker, more legible weight;
+  // emphasis text steps up to SemiBold (600).
+  body: 'Quicksand_500Medium',
+  bodyMedium: 'Quicksand_600SemiBold',
   urdu: 'NotoNastaliqUrdu_400Regular',
 };
 

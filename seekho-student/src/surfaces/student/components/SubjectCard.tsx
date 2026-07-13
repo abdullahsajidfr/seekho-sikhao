@@ -13,11 +13,14 @@ interface SubjectConfig {
   glyph: 'math' | 'science' | 'islamiyat' | 'social' | 'text';
   iconText?: string;
   iconFont?: string;
+  /** Per-glyph override — Quicksand's wider "Abc" needs a smaller size than the
+   *  shared default so it stays inside the 34px icon box (Urdu keeps the default). */
+  iconSize?: number;
 }
 
 const SUBJECT_CONFIG: Record<Subject, SubjectConfig> = {
   Mathematics: { bg: '#FFD2D3', border: '#CE6161', iconBg: '#CE6161', textColor: '#CE6161', glyph: 'math' },
-  English: { bg: '#D6F4FF', border: '#0C759E', iconBg: '#0C759E', textColor: '#0C759E', glyph: 'text', iconText: 'Abc', iconFont: fonts.body },
+  English: { bg: '#D6F4FF', border: '#0C759E', iconBg: '#0C759E', textColor: '#0C759E', glyph: 'text', iconText: 'Abc', iconFont: fonts.body, iconSize: 16 },
   Science: { bg: '#FFE1D3', border: '#FF5100', iconBg: '#FF5100', textColor: '#FF5100', glyph: 'science' },
   Islamiyat: { bg: '#E5D3FF', border: '#4E00BA', iconBg: '#4E00BA', textColor: '#4E00BA', glyph: 'islamiyat' },
   'Social Studies': { bg: '#FFFDD3', border: '#D6CB01', iconBg: '#D6CB01', textColor: '#D6CB01', glyph: 'social' },
@@ -44,7 +47,7 @@ export default function SubjectCard({ subject, grade = 'Grade 4, Section A', onP
       {cfg.glyph === 'social' && <SocialIcon size={34} />}
       {cfg.glyph === 'text' && (
         <View style={[styles.iconBox, { backgroundColor: cfg.iconBg }]}>
-          <Text style={[styles.iconText, { fontFamily: cfg.iconFont }]}>{cfg.iconText}</Text>
+          <Text style={[styles.iconText, { fontFamily: cfg.iconFont }, cfg.iconSize ? { fontSize: cfg.iconSize } : null]}>{cfg.iconText}</Text>
         </View>
       )}
       <View style={styles.textGroup}>
@@ -71,5 +74,5 @@ const styles = StyleSheet.create({
   iconText: { fontSize: 19, color: '#FFFFFF', lineHeight: 22 },
   textGroup: { gap: 2, flexShrink: 1 },
   subjectName: { fontFamily: fonts.heading, fontSize: 24, lineHeight: 30 },
-  grade: { fontFamily: fonts.body, fontSize: 22, lineHeight: 22, color: '#444444' },
+  grade: { fontFamily: fonts.body, fontSize: 15, lineHeight: 20, color: '#444444' },
 });

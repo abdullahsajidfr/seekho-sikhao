@@ -33,6 +33,13 @@ export interface ChatMessage {
   photoURL?: string;
   workbookQuestion?: string;
   workbookCorrect?: boolean;
+  /** AI message that is a hint (renders in the yellow hint style). */
+  isHint?: boolean;
+  /** AI message confirming a correct answer (renders in the green style). */
+  isCorrect?: boolean;
+  /** AI reply whose Urdu audio was pre-synthesised server-side and stored at
+   *  `audioClips/{roomCode}/{timestamp}` — play that instead of re-synthesising. */
+  audioReady?: boolean;
   timestamp: number;
 }
 
@@ -72,6 +79,9 @@ export interface Greetings {
 export interface PastChat {
   id: string;
   firstQuestion: string;
+  /** Subject this chat belonged to, so past chats stay scoped to their subject.
+   *  Optional for backward-compat with chats archived before this field existed. */
+  subject?: Subject;
   startedAt: number;
   endedAt: number;
   messages: Record<string, ChatMessage>;

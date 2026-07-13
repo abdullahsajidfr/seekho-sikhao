@@ -8,7 +8,7 @@ import { NavigationContainer, type NavigationState } from '@react-navigation/nat
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { useFonts } from 'expo-font';
 import { Fredoka_400Regular, Fredoka_500Medium } from '@expo-google-fonts/fredoka';
-import { Dongle_400Regular } from '@expo-google-fonts/dongle';
+import { Quicksand_400Regular, Quicksand_500Medium, Quicksand_600SemiBold } from '@expo-google-fonts/quicksand';
 import { NotoNastaliqUrdu_400Regular } from '@expo-google-fonts/noto-nastaliq-urdu';
 
 import { LanguageProvider } from './src/context/LanguageContext';
@@ -19,7 +19,7 @@ import { colors } from './src/theme';
 
 export type RootStackParamList = {
   Entry: undefined;
-  Student: { roomCode: string };
+  Student: { roomCode: string; studentName: string; isNew: boolean };
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -41,18 +41,20 @@ function handleNavStateChange(state: NavigationState | undefined): void {
 }
 
 function EntryRoute({ navigation }: any) {
-  return <EntryScreen onEnter={(roomCode: string) => navigation.navigate('Student', { roomCode })} />;
+  return <EntryScreen onEnter={(roomCode: string, studentName: string, isNew: boolean) => navigation.navigate('Student', { roomCode, studentName, isNew })} />;
 }
 
 function StudentRoute({ route, navigation }: any) {
-  return <StudentApp roomCode={route.params.roomCode} onExit={() => navigation.navigate('Entry')} />;
+  return <StudentApp roomCode={route.params.roomCode} studentName={route.params.studentName} isNew={!!route.params.isNew} onExit={() => navigation.navigate('Entry')} />;
 }
 
 export default function App() {
   const [fontsLoaded] = useFonts({
     Fredoka_400Regular,
     Fredoka_500Medium,
-    Dongle_400Regular,
+    Quicksand_400Regular,
+    Quicksand_500Medium,
+    Quicksand_600SemiBold,
     NotoNastaliqUrdu_400Regular,
   });
 

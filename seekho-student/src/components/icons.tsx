@@ -52,19 +52,23 @@ export function SendCircle({ size = 52 }: { size?: number }) {
   );
 }
 
-export function MicIcon({ width = 31, height = 40, color = colors.textPrimary }: IconProps) {
+// Cleaner, rounded mic — capsule body + arc stand, matched to CameraIcon's weight.
+export function MicIcon({ width = 30, height = 30, color = colors.textPrimary }: IconProps) {
   return (
-    <Svg width={width} height={height} viewBox="0 0 31 40" fill="none">
-      <Path d="M28.3077 16.3281V19.7827C28.3077 22.9894 26.9218 26.0647 24.455 28.3322C21.9882 30.5997 18.6425 31.8736 15.1538 31.8736M15.1538 31.8736C11.6652 31.8736 8.3195 30.5997 5.85267 28.3322C3.38585 26.0647 2 22.9894 2 19.7827V16.3281M15.1538 31.8736V38.7827M7.63736 38.7827H22.6703M15.1538 0.782654C13.6587 0.782654 12.2248 1.32859 11.1676 2.30037C10.1104 3.27215 9.51648 4.59017 9.51648 5.96447V19.7827C9.51648 21.157 10.1104 22.475 11.1676 23.4468C12.2248 24.4185 13.6587 24.9645 15.1538 24.9645C16.649 24.9645 18.0829 24.4185 19.1401 23.4468C20.1973 22.475 20.7912 21.157 20.7912 19.7827V5.96447C20.7912 4.59017 20.1973 3.27215 19.1401 2.30037C18.0829 1.32859 16.649 0.782654 15.1538 0.782654Z" stroke={color} strokeWidth={1.56532} strokeLinecap="round" strokeLinejoin="round" />
+    <Svg width={width} height={height} viewBox="0 0 24 24" fill="none">
+      <Path d="M12 3.25C10.7574 3.25 9.75 4.2574 9.75 5.5V12C9.75 13.2426 10.7574 14.25 12 14.25C13.2426 14.25 14.25 13.2426 14.25 12V5.5C14.25 4.2574 13.2426 3.25 12 3.25Z" stroke={color} strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" />
+      <Path d="M18 11.5V12C18 15.3137 15.3137 18 12 18C8.68629 18 6 15.3137 6 12V11.5" stroke={color} strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" />
+      <Path d="M12 18V20.75M8.75 20.75H15.25" stroke={color} strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" />
     </Svg>
   );
 }
 
-export function CameraIcon({ width = 48, height = 48, color = colors.textPrimary }: IconProps) {
+// Cleaner, rounded camera — soft body, centred lens, matched stroke weight.
+export function CameraIcon({ width = 34, height = 34, color = colors.textPrimary }: IconProps) {
   return (
-    <Svg width={width} height={height} viewBox="0 0 48 48" fill="none">
-      <Path d="M46 38C46 39.0609 45.5786 40.0783 44.8284 40.8284C44.0783 41.5786 43.0609 42 42 42H6C4.93913 42 3.92172 41.5786 3.17157 40.8284C2.42143 40.0783 2 39.0609 2 38V16C2 14.9391 2.42143 13.9217 3.17157 13.1716C3.92172 12.4214 4.93913 12 6 12H14L18 6H30L34 12H42C43.0609 12 44.0783 12.4214 44.8284 13.1716C45.5786 13.9217 46 14.9391 46 16V38Z" stroke={color} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
-      <Path d="M24 34C28.4183 34 32 30.4183 32 26C32 21.5817 28.4183 18 24 18C19.5817 18 16 21.5817 16 26C16 30.4183 19.5817 34 24 34Z" stroke={color} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
+    <Svg width={width} height={height} viewBox="0 0 24 24" fill="none">
+      <Path d="M3 9.5C3 8.11929 4.11929 7 5.5 7H7.2L8.15 5.4C8.33 5.09 8.66 4.9 9.02 4.9H14.98C15.34 4.9 15.67 5.09 15.85 5.4L16.8 7H18.5C19.8807 7 21 8.11929 21 9.5V17C21 18.3807 19.8807 19.5 18.5 19.5H5.5C4.11929 19.5 3 18.3807 3 17V9.5Z" stroke={color} strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" />
+      <Path d="M12 16.25C13.7949 16.25 15.25 14.7949 15.25 13C15.25 11.2051 13.7949 9.75 12 9.75C10.2051 9.75 8.75 11.2051 8.75 13C8.75 14.7949 10.2051 16.25 12 16.25Z" stroke={color} strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" />
     </Svg>
   );
 }
@@ -153,10 +157,30 @@ export function Speaker({ width = 20, height = 20, color = colors.textPrimary }:
   );
 }
 
+// Muted speaker — cone with an ✕ where the sound waves would be (read-aloud OFF).
+export function SpeakerOff({ width = 20, height = 20, color = colors.feedbackRed }: IconProps) {
+  return (
+    <Svg width={width} height={height} viewBox="0 0 24 24" fill="none">
+      <Path d="M11 5L6 9H2v6h4l5 4V5z" stroke={color} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
+      <Path d="M23 9l-6 6M17 9l6 6" stroke={color} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
+    </Svg>
+  );
+}
+
 export function PlayTriangle({ width = 14, height = 16, color = colors.textPrimary }: IconProps) {
   return (
     <Svg width={width} height={height} viewBox="0 0 14 16" fill="none">
       <Path d="M1 1L13 8L1 15V1Z" fill={color} />
+    </Svg>
+  );
+}
+
+// Pause — two rounded bars, sized to swap 1:1 with PlayTriangle in the ▶ button.
+export function PauseBars({ width = 14, height = 16, color = colors.textPrimary }: IconProps) {
+  return (
+    <Svg width={width} height={height} viewBox="0 0 14 16" fill="none">
+      <Rect x={2} y={1} width={3.4} height={14} rx={1.2} fill={color} />
+      <Rect x={8.6} y={1} width={3.4} height={14} rx={1.2} fill={color} />
     </Svg>
   );
 }
@@ -259,12 +283,16 @@ export function SocialIcon({ size = 34 }: { size?: number }) {
   );
 }
 
-// ── Read-aloud pill (green pill + speaker + label), rebuilt from the SVG ──
+// ── Read-aloud pill — ON: green + speaker; OFF: red + muted speaker ───────
 export function ReadAloudPill({ label, active = true }: { label: string; active?: boolean }) {
   return (
     <View style={[pillStyles.pill, !active && pillStyles.pillOff]}>
-      <Speaker width={20} height={20} color={colors.textPrimary} />
-      <Text style={pillStyles.label}>{label}</Text>
+      {active ? (
+        <Speaker width={20} height={20} color={colors.textPrimary} />
+      ) : (
+        <SpeakerOff width={20} height={20} color={colors.feedbackRed} />
+      )}
+      <Text style={[pillStyles.label, !active && pillStyles.labelOff]}>{label}</Text>
     </View>
   );
 }
@@ -281,13 +309,18 @@ const pillStyles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.border,
   },
+  // OFF is unmistakably red — muted state (Item 5).
   pillOff: {
-    backgroundColor: 'rgba(161, 161, 161, 0.12)',
+    backgroundColor: 'rgba(244, 88, 88, 0.14)',
+    borderColor: colors.feedbackRed,
   },
   label: {
     fontFamily: fonts.heading,
     fontSize: 20,
     color: colors.textPrimary,
     lineHeight: 24,
+  },
+  labelOff: {
+    color: colors.feedbackRed,
   },
 });

@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, Pressable, ScrollView, StyleSheet } from 'react-native';
+import React, { useState, useEffect, useRef } from 'react';
+import { View, Text, Pressable, ScrollView, StyleSheet, Dimensions } from 'react-native';
 import TopBar from '../components/TopBar';
-import { ChatOptionsMenu, RenameModal, DeleteModal } from '../components/overlays';
+import { ChatOptionsMenu, RenameModal, DeleteModal, type Anchor } from '../components/overlays';
 import { TypeSquare, MicSquare, CameraSquare } from '../../../components/icons';
 import { renamePastChat, deletePastChat } from '../../../firebase/session';
 import { logTap } from '../../../lib/autolog';
@@ -34,9 +34,23 @@ interface Props {
 
 export default function InputModeScreen({ roomCode, pastChats = [], onSelect, onBack, onViewPastChat, log }: Props) {
   const [menuChat, setMenuChat] = useState<PastChat | null>(null);
+  const [menuAnchor, setMenuAnchor] = useState<Anchor | undefined>(undefined);
   const [renamingChat, setRenamingChat] = useState<PastChat | null>(null);
   const [deletingChat, setDeletingChat] = useState<PastChat | null>(null);
   const [busy, setBusy] = useState(false);
+
+  // Per-row refs for the ··· buttons so the options menu can drop down directly
+  // under the button that was tapped instead of centering on screen.
+  const menuBtnRefs = useRef<Map<string, View>>(new Map());
+  function openMenu(chat: PastChat) {
+    const btn = menuBtnRefs.current.get(chat.id);
+    if (!btn) { setMenuAnchor(undefined); setMenuChat(chat); return; }
+    btn.measureInWindow((x, y, w, h) => {
+      const sw = Dimensions.get('window').width;
+      setMenuAnchor({ top: y + h + 8, right: Math.max(12, sw - (x + w)) });
+      setMenuChat(chat);
+    });
+  }
 
   useEffect(() => {
     if (pastChats.length > 0) log?.('screen:past_chats');
@@ -86,7 +100,13 @@ export default function InputModeScreen({ roomCode, pastChats = [], onSelect, on
                     <Text style={styles.pastQuestion} numberOfLines={1}>{chat.firstQuestion}</Text>
                   </Pressable>
                   <Text style={styles.pastTime}>{relativeTime(chat.endedAt)}</Text>
-                  <Pressable style={styles.pastMenuBtn} onPress={() => setMenuChat(chat)} hitSlop={8} accessibilityLabel="Chat options">
+                  <Pressable
+                    ref={(el) => { if (el) menuBtnRefs.current.set(chat.id, el as unknown as View); else menuBtnRefs.current.delete(chat.id); }}
+                    style={styles.pastMenuBtn}
+                    onPress={() => openMenu(chat)}
+                    hitSlop={8}
+                    accessibilityLabel="Chat options"
+                  >
                     <Text style={styles.dots}>···</Text>
                   </Pressable>
                 </View>
@@ -98,6 +118,7 @@ export default function InputModeScreen({ roomCode, pastChats = [], onSelect, on
 
       {menuChat ? (
         <ChatOptionsMenu
+          anchor={menuAnchor}
           onClose={() => setMenuChat(null)}
           onRename={() => { setRenamingChat(menuChat); setMenuChat(null); }}
           onDelete={() => { setDeletingChat(menuChat); setMenuChat(null); }}

@@ -12,20 +12,36 @@ const shadow = {
   elevation: 12,
 };
 
-function Backdrop({ onPress, children }: { onPress: () => void; children: React.ReactNode }) {
+// Delete is destructive — tint its menu row red so it reads as a warning.
+const DELETE_RED = '#D0453B';
+
+/** Screen-space position for a popup's top-right corner (distance from the top
+ *  and right edges), so a menu/modal can drop down directly under its trigger. */
+export type Anchor = { top: number; right: number };
+
+function Backdrop({ onPress, anchor, children }: { onPress: () => void; anchor?: Anchor; children: React.ReactNode }) {
   return (
     <Modal transparent visible animationType="fade" supportedOrientations={['landscape', 'landscape-left', 'landscape-right']} onRequestClose={onPress}>
-      <Pressable style={styles.backdrop} onPress={onPress}>
-        <Pressable onPress={(e) => e.stopPropagation()}>{children}</Pressable>
-      </Pressable>
+      {anchor ? (
+        // Anchored dropdown — transparent scrim, card pinned just below the trigger.
+        <Pressable style={styles.backdropAnchored} onPress={onPress}>
+          <View style={[styles.anchorWrap, { top: anchor.top, right: anchor.right }]}>
+            <Pressable onPress={(e) => e.stopPropagation()}>{children}</Pressable>
+          </View>
+        </Pressable>
+      ) : (
+        <Pressable style={styles.backdrop} onPress={onPress}>
+          <Pressable onPress={(e) => e.stopPropagation()}>{children}</Pressable>
+        </Pressable>
+      )}
     </Modal>
   );
 }
 
 // ── Chat options (Rename / Delete) ──────────────────────────────────────
-export function ChatOptionsMenu({ onRename, onDelete, onClose }: { onRename: () => void; onDelete: () => void; onClose: () => void }) {
+export function ChatOptionsMenu({ onRename, onDelete, onClose, anchor }: { onRename: () => void; onDelete: () => void; onClose: () => void; anchor?: Anchor }) {
   return (
-    <Backdrop onPress={onClose}>
+    <Backdrop onPress={onClose} anchor={anchor}>
       <View style={[styles.menuCard, shadow]}>
         <Pressable style={styles.menuItem} onPress={() => { logTap('student:chat-rename'); onRename(); }}>
           <RenameIcon size={24} color="#3A3A3A" />
@@ -33,8 +49,8 @@ export function ChatOptionsMenu({ onRename, onDelete, onClose }: { onRename: () 
         </Pressable>
         <View style={styles.menuDivider} />
         <Pressable style={styles.menuItem} onPress={() => { logTap('student:chat-delete'); onDelete(); }}>
-          <DeleteIcon size={24} color="#3A3A3A" />
-          <Text style={styles.menuText}>Delete Chat</Text>
+          <DeleteIcon size={24} color={DELETE_RED} />
+          <Text style={[styles.menuText, styles.menuTextDelete]}>Delete Chat</Text>
         </Pressable>
       </View>
     </Backdrop>
@@ -42,11 +58,11 @@ export function ChatOptionsMenu({ onRename, onDelete, onClose }: { onRename: () 
 }
 
 // ── Rename modal ────────────────────────────────────────────────────────
-export function RenameModal({ initial, onCancel, onSave }: { initial: string; onCancel: () => void; onSave: (name: string) => void }) {
+export function RenameModal({ initial, onCancel, onSave, anchor }: { initial: string; onCancel: () => void; onSave: (name: string) => void; anchor?: Anchor }) {
   const [value, setValue] = useState(initial);
   useEffect(() => setValue(initial), [initial]);
   return (
-    <Backdrop onPress={onCancel}>
+    <Backdrop onPress={onCancel} anchor={anchor}>
       <View style={[styles.modal, shadow]}>
         <Pressable style={styles.modalClose} onPress={onCancel} hitSlop={8}><Text style={styles.modalCloseX}>✕</Text></Pressable>
         <Text style={styles.modalTitle}>Rename Chat</Text>
@@ -71,9 +87,9 @@ export function RenameModal({ initial, onCancel, onSave }: { initial: string; on
 }
 
 // ── Delete confirmation modal ───────────────────────────────────────────
-export function DeleteModal({ busy, onCancel, onDelete }: { busy?: boolean; onCancel: () => void; onDelete: () => void }) {
+export function DeleteModal({ busy, onCancel, onDelete, anchor }: { busy?: boolean; onCancel: () => void; onDelete: () => void; anchor?: Anchor }) {
   return (
-    <Backdrop onPress={onCancel}>
+    <Backdrop onPress={onCancel} anchor={anchor}>
       <View style={[styles.modal, shadow]}>
         <Pressable style={styles.modalClose} onPress={onCancel} hitSlop={8}><Text style={styles.modalCloseX}>✕</Text></Pressable>
         <Text style={styles.modalTitle}>Delete Chat</Text>
@@ -90,13 +106,13 @@ export function DeleteModal({ busy, onCancel, onDelete }: { busy?: boolean; onCa
 }
 
 // ── Settings menu (Log Out) ─────────────────────────────────────────────
-export function SettingsMenu({ onLogOut, onClose }: { onLogOut: () => void; onClose: () => void }) {
+export function SettingsMenu({ onLogOut, onClose, anchor }: { onLogOut: () => void; onClose: () => void; anchor?: Anchor }) {
   return (
-    <Backdrop onPress={onClose}>
+    <Backdrop onPress={onClose} anchor={anchor}>
       <View style={[styles.settingsCard, shadow]}>
         <Pressable style={styles.settingsItem} onPress={() => { logTap('student:logout'); onLogOut(); }}>
-          <LogOutIcon size={26} color="#3A3A3A" />
-          <Text style={styles.settingsText}>Log Out</Text>
+          <LogOutIcon size={26} color={DELETE_RED} />
+          <Text style={[styles.settingsText, styles.settingsTextLogout]}>Log Out</Text>
         </Pressable>
       </View>
     </Backdrop>
@@ -105,15 +121,21 @@ export function SettingsMenu({ onLogOut, onClose }: { onLogOut: () => void; onCl
 
 const styles = StyleSheet.create({
   backdrop: { flex: 1, backgroundColor: colors.overlay, alignItems: 'center', justifyContent: 'center' },
+  // Anchored dropdown: no dark scrim (the card's shadow carries it), card pinned
+  // absolutely just under its trigger via the `top`/`right` inline offsets.
+  backdropAnchored: { flex: 1, backgroundColor: 'transparent' },
+  anchorWrap: { position: 'absolute', maxWidth: '94%' },
 
   menuCard: { backgroundColor: '#FFFBF7', borderRadius: 20, paddingVertical: 8, width: 280 },
   menuItem: { flexDirection: 'row', alignItems: 'center', gap: 16, paddingVertical: 20, paddingHorizontal: 28 },
   menuText: { fontFamily: fonts.heading, fontSize: 20, color: '#3A3A3A' },
+  menuTextDelete: { color: DELETE_RED },
   menuDivider: { height: 1, backgroundColor: colors.border, marginHorizontal: 12 },
 
   settingsCard: { backgroundColor: '#FFFBF7', borderRadius: 20, paddingVertical: 8, width: 300 },
   settingsItem: { flexDirection: 'row', alignItems: 'center', gap: 16, paddingVertical: 22, paddingHorizontal: 32 },
   settingsText: { fontFamily: fonts.heading, fontSize: 22, color: '#3A3A3A' },
+  settingsTextLogout: { color: DELETE_RED },
 
   modal: { backgroundColor: '#FFFBF7', borderRadius: 24, paddingTop: 32, paddingBottom: 28, paddingHorizontal: 28, width: 320, gap: 20 },
   modalClose: { position: 'absolute', top: 16, right: 16, width: 32, height: 32, alignItems: 'center', justifyContent: 'center' },

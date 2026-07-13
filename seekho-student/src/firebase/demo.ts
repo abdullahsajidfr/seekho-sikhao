@@ -42,6 +42,21 @@ export function demoSession(): Session {
         workbookQuestion: 'Work out: 6 x 7 = ?',
         timestamp: now - 40000,
       },
+      m4: {
+        id: 'm4', role: 'ai', type: 'text', isHint: true,
+        text: 'Chota sa ishara: 6 × 7 ka matlab hai 6 ko 7 baar jama karna. 6 + 6 + 6 + 6 + 6 + 6 + 6. Ya phir 6 × 7 = (6 × 5) + (6 × 2).',
+        timestamp: now - 30000,
+      },
+      m5: {
+        id: 'm5', role: 'ai', type: 'text', isCorrect: true,
+        text: 'Shabaash! 6 × 7 = 42. Bilkul sahi jawab, bahut khoob!',
+        timestamp: now - 20000,
+      },
+      m6: {
+        id: 'm6', role: 'ai', type: 'text',
+        text: 'بہت خوب! آپ نے یہ سوال بالکل درست حل کیا ہے۔ اب اگلا سوال حل کرنے کی کوشش کریں اور ہر قدم غور سے پڑھیں تاکہ کوئی غلطی نہ ہو۔',
+        timestamp: now - 10000,
+      },
     },
     pastChats: {
       p1: {

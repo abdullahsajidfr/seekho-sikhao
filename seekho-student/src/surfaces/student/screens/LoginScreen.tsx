@@ -5,18 +5,39 @@ import { logSubmit } from '../../../lib/autolog';
 import { colors, fonts } from '../../../theme';
 
 interface Props {
-  onLogin: (studentId: string) => void;
+  /**
+   * Validate the credentials. Return `{ ok: true }` on success (the caller then
+   * navigates away), or `{ ok: false, error }` to show an inline message.
+   */
+  onSubmit: (username: string, password: string) => Promise<{ ok: boolean; error?: string }>;
 }
 
-export default function LoginScreen({ onLogin }: Props) {
+export default function LoginScreen({ onSubmit }: Props) {
   const [id, setId] = useState('');
   const [pw, setPw] = useState('');
   const [showPw, setShowPw] = useState(false);
+  const [error, setError] = useState('');
+  const [busy, setBusy] = useState(false);
 
-  function handleSubmit() {
-    if (id.trim() && pw.trim()) {
-      logSubmit('student:login-name', id.trim());
-      onLogin(id.trim());
+  async function handleSubmit() {
+    if (busy) return;
+    const username = id.trim();
+    if (!username || !pw.trim()) {
+      setError('Please enter your username and password.');
+      return;
+    }
+    setError('');
+    setBusy(true);
+    logSubmit('student:login-name', username);
+    try {
+      const res = await onSubmit(username, pw);
+      // On success the caller navigates away and this screen unmounts; on
+      // failure we stay put and surface the reason.
+      if (!res.ok) setError(res.error || 'Could not sign in. Please try again.');
+    } catch {
+      setError('Could not sign in. Please try again.');
+    } finally {
+      setBusy(false);
     }
   }
 
@@ -26,8 +47,8 @@ export default function LoginScreen({ onLogin }: Props) {
         <Logo height={72} />
 
         <View style={styles.headingGroup}>
-          <Text style={styles.heading}>Welcome back!</Text>
-          <Text style={styles.sub}>Log in to continue learning</Text>
+          <Text style={styles.heading}>Welcome!</Text>
+          <Text style={styles.sub}>Log in or sign up to start learning</Text>
         </View>
 
         <View style={styles.form}>
@@ -39,8 +60,10 @@ export default function LoginScreen({ onLogin }: Props) {
                 placeholder="Type Here"
                 placeholderTextColor={colors.textMuted2}
                 value={id}
-                onChangeText={setId}
+                onChangeText={(t) => { setId(t); if (error) setError(''); }}
                 autoCapitalize="none"
+                autoCorrect={false}
+                editable={!busy}
               />
             </View>
           </View>
@@ -53,9 +76,10 @@ export default function LoginScreen({ onLogin }: Props) {
                 placeholder="Type Here"
                 placeholderTextColor={colors.textMuted2}
                 value={pw}
-                onChangeText={setPw}
+                onChangeText={(t) => { setPw(t); if (error) setError(''); }}
                 secureTextEntry={!showPw}
                 onSubmitEditing={handleSubmit}
+                editable={!busy}
               />
             </View>
             <Pressable style={styles.eyeBtn} onPress={() => setShowPw((v) => !v)} hitSlop={10}>
@@ -63,8 +87,10 @@ export default function LoginScreen({ onLogin }: Props) {
             </Pressable>
           </View>
 
-          <Pressable style={styles.loginBtn} onPress={handleSubmit}>
-            <Text style={styles.loginBtnText}>Log In</Text>
+          {error ? <Text style={styles.error}>{error}</Text> : null}
+
+          <Pressable style={[styles.loginBtn, busy && styles.loginBtnBusy]} onPress={handleSubmit} disabled={busy}>
+            <Text style={styles.loginBtnText}>{busy ? 'Signing in…' : 'Log In'}</Text>
           </Pressable>
         </View>
       </View>
@@ -107,9 +133,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: 18,
   },
   fieldContent: { flex: 1, gap: 2 },
-  fieldLabel: { fontFamily: fonts.body, fontSize: 24, lineHeight: 26, color: colors.textMuted },
-  fieldInput: { fontFamily: fonts.body, fontSize: 24, lineHeight: 26, color: colors.textPrimary, padding: 0, minHeight: 28 },
+  // Fredoka label — normal proportions read clearly at a small size (Item 1).
+  fieldLabel: { fontFamily: fonts.headingRegular, fontSize: 14, lineHeight: 18, color: colors.textMuted },
+  // Fredoka input: caret matches glyph height, text is comfortably readable (Item 1).
+  fieldInput: { fontFamily: fonts.headingRegular, fontSize: 20, lineHeight: 24, color: colors.textPrimary, padding: 0, minHeight: 30, textAlignVertical: 'center' },
   eyeBtn: { alignItems: 'center', justifyContent: 'center' },
+  error: { fontFamily: fonts.headingRegular, fontSize: 16, lineHeight: 20, color: colors.feedbackRed },
   loginBtn: { marginTop: 24, height: 56, backgroundColor: colors.primary, borderRadius: 100, alignItems: 'center', justifyContent: 'center' },
+  loginBtnBusy: { opacity: 0.6 },
   loginBtnText: { fontFamily: fonts.heading, fontSize: 24, color: '#FFFFFF' },
 });

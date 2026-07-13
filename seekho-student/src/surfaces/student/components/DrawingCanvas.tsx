@@ -57,7 +57,11 @@ const DrawingCanvas = forwardRef<DrawingCanvasHandle>((_props, ref) => {
       // Lazy require so a missing native module (not bundled in every Expo Go
       // runtime) never breaks the JS bundle at import time.
       const { captureRef } = require('react-native-view-shot');
-      return await captureRef(shotRef, { result: 'data-uri', format: 'png', quality: 0.9 });
+      // JPEG at a capped width keeps the data URI to tens of KB — small enough to
+      // store in RTDB (workbookState.canvasImageURL) and hand to Gemini vision,
+      // while a white canvas + thin strokes stay perfectly legible for grading.
+      // Returns a proper `data:image/jpeg;base64,...` URI.
+      return await captureRef(shotRef, { result: 'data-uri', format: 'jpg', quality: 0.6, width: 800 });
     } catch {
       return null;
     }

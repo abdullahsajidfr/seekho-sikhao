@@ -19,9 +19,12 @@ interface Props {
   isNew: boolean;
   onSelect: (subject: Subject) => void;
   onLogout: () => void;
+  /** True while the admin-pushed smileyometer Modal is active: our own Modals
+   *  must unmount so iOS can present the survey (it can't stack two Modals). */
+  suppressOverlays?: boolean;
 }
 
-export default function SubjectScreen({ roomCode, studentName, isNew, onSelect, onLogout }: Props) {
+export default function SubjectScreen({ roomCode, studentName, isNew, onSelect, onLogout, suppressOverlays }: Props) {
   const { t } = useLanguage();
   const [showSettings, setShowSettings] = useState(false);
   const [settingsAnchor, setSettingsAnchor] = useState<Anchor | undefined>(undefined);
@@ -83,7 +86,7 @@ export default function SubjectScreen({ roomCode, studentName, isNew, onSelect, 
         </View>
       </View>
 
-      {showSettings ? (
+      {showSettings && !suppressOverlays ? (
         <SettingsMenu
           anchor={settingsAnchor}
           onClose={() => setShowSettings(false)}
@@ -91,7 +94,7 @@ export default function SubjectScreen({ roomCode, studentName, isNew, onSelect, 
         />
       ) : null}
 
-      {showTutorial ? <TutorialOverlay onClose={() => setShowTutorial(false)} /> : null}
+      {showTutorial && !suppressOverlays ? <TutorialOverlay onClose={() => setShowTutorial(false)} /> : null}
     </View>
   );
 }

@@ -4,7 +4,7 @@ import type { Session, AiResponse, Greetings, StudentMessagePayload, ChatMessage
 import type { AdminControl } from '../types/admin';
 import { demoSession } from './demo';
 import { triggerTutor } from '../lib/tutor';
-import { uploadVoice } from './storage';
+import { voiceClipRef, persistVoiceClips } from './storage';
 import { logEvent } from './admin';
 
 // ── Helpers ───────────────────────────────────────────────────────────
@@ -132,19 +132,23 @@ export async function sendStudentMessage(
   payload: StudentMessagePayload
 ): Promise<void> {
   if (!firebaseEnabled) return;
-  // Pull `audioUri` out explicitly: it is a LOCAL file URI and must never be
-  // written to the database — only the uploaded `audioURL` (below) is persisted.
-  const { text, type, photoURL, voiceTranscript, audioUri } = payload;
+  // Pull `audioUris` out explicitly: they are LOCAL file URIs and must never be
+  // written to the database — only the `audioURL` reference is persisted.
+  const { text, type, photoURL, voiceTranscript, audioUris } = payload;
   const timestamp = Date.now();
+  const hasClips = type === 'voice' && !!audioUris?.length;
   const historyRef = ref(db, `sessions/${roomCode}/chatHistory`);
-  const msgRef = push(historyRef, {
+  // The clip reference is computable synchronously (voiceClips/{room}/{ts} or a
+  // deterministic Supabase URL), so it rides the INITIAL message push — no
+  // back-patch that could race an archive/clear and resurrect a deleted message.
+  await push(historyRef, {
     role: 'student',
     text,
     type,
     photoURL: photoURL ?? null,
+    ...(hasClips ? { audioURL: voiceClipRef(roomCode, timestamp) } : {}),
     timestamp,
   });
-  await msgRef;
   await update(sessionRef(roomCode), {
     studentMessage: {
       text,
@@ -157,24 +161,18 @@ export async function sendStudentMessage(
     showThinking: true, // waiting for the AI reply — dots show until it lands
   });
   // Kick the server-side AI tutor to read this message and reply (Item J).
-  // This fires BEFORE the (slow, optional) audio upload below so tutor timing is
-  // unchanged whether or not the child spoke their question.
+  // This fires BEFORE the (slow, optional) audio persistence below so tutor
+  // timing is unchanged whether or not the child spoke their question.
   triggerTutor(roomCode);
 
-  // Best-effort voice-audio persistence. The transcript message is already sent
-  // and the tutor already triggered; here we only try to attach the recorded
-  // clip's download URL to that message. A failure (e.g. the Storage bucket is
-  // not provisioned yet) must NEVER block or break the chat — it is caught and
-  // logged as `voice:upload-failed` so it stays visible in the research data.
-  const key = msgRef.key;
-  if (type === 'voice' && audioUri && key) {
-    uploadVoice(roomCode, audioUri, timestamp)
-      .then((audioURL) =>
-        update(ref(db, `sessions/${roomCode}/chatHistory/${key}`), { audioURL }).catch(() => {})
-      )
-      .catch(() => {
-        logEvent(roomCode, 'voice:upload-failed', 'student_app', {});
-      });
+  // Best-effort voice-audio persistence into the side path the message already
+  // references. A failure must NEVER block or break the chat — it is caught and
+  // logged as `voice:upload-failed` so the dangling reference stays explainable
+  // in the research data.
+  if (hasClips) {
+    persistVoiceClips(roomCode, audioUris!, timestamp).catch(() => {
+      logEvent(roomCode, 'voice:upload-failed', 'student_app', {});
+    });
   }
 }
 

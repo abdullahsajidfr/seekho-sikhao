@@ -26,9 +26,17 @@ export default function AdminApp() {
     return <div style={{ padding: 32, fontFamily: 'monospace' }}>Access denied.</div>;
   }
 
+  // Session ids created by the student app are username slugs: deriveAccountId
+  // (seekho-student/src/firebase/auth.ts) lowercases and maps every run of
+  // non-alphanumerics to '-', so "Aisha Khan" and "aisha_khan" both become
+  // "aisha-khan". Apply the identical normalization here so a researcher can
+  // type the username exactly as the student wrote it.
+  const normalizeCode = (raw: string) =>
+    raw.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+
   async function handleJoin() {
-    const code = inputCode.trim();
-    if (code.length !== 4) { setEntryError('Enter a 4-digit room code'); return; }
+    const code = normalizeCode(inputCode);
+    if (code.length < 2) { setEntryError('Enter a room code (4 digits) or a student username'); return; }
     setChecking(true);
     setEntryError('');
     const exists = await roomExists(code);
@@ -51,10 +59,10 @@ export default function AdminApp() {
             <p className={styles.entryTitle}>Join Session</p>
             <input
               className={styles.entryInput}
-              maxLength={4}
-              placeholder="0000"
+              maxLength={40}
+              placeholder="0000 or username"
               value={inputCode}
-              onChange={e => setInputCode(e.target.value.replace(/\D/g, ''))}
+              onChange={e => setInputCode(e.target.value)}
               onKeyDown={e => e.key === 'Enter' && handleJoin()}
               autoFocus
             />
@@ -62,7 +70,7 @@ export default function AdminApp() {
             <button
               className={styles.entryBtn}
               onClick={handleJoin}
-              disabled={inputCode.length !== 4 || checking}
+              disabled={normalizeCode(inputCode).length < 2 || checking}
             >
               {checking ? 'Checking…' : 'Join Session'}
             </button>

@@ -25,17 +25,18 @@ export type StudentMessageType = Exclude<MessageType, 'workbook_answer'>;
 export type MessageRole = 'student' | 'ai';
 
 /**
- * What the chat input bar hands to `sendStudentMessage`. `audioUri` is a LOCAL
- * device file URI for a recorded voice clip — it is uploaded to Storage on a
- * best-effort basis and is NEVER written to the database; only the resulting
- * `audioURL` download link is persisted onto the sent message.
+ * What the chat input bar hands to `sendStudentMessage`. `audioUris` are LOCAL
+ * device file URIs for the recorded voice clips (one per dictation that
+ * contributed to the message) — they are persisted best-effort and are NEVER
+ * written to the database; the sent message's `audioURL` field holds only a
+ * reference (see `ChatMessage.audioURL`).
  */
 export interface StudentMessagePayload {
   text: string;
   type: StudentMessageType;
   photoURL?: string;
   voiceTranscript?: string;
-  audioUri?: string;
+  audioUris?: string[];
 }
 
 export interface ChatMessage {
@@ -54,9 +55,11 @@ export interface ChatMessage {
   /** AI reply whose Urdu audio was pre-synthesised server-side and stored at
    *  `audioClips/{roomCode}/{timestamp}` — play that instead of re-synthesising. */
   audioReady?: boolean;
-  /** Storage download URL for a voice message's recorded audio, uploaded
-   *  best-effort to `sessions/{room}/voice/{timestamp}.wav`. Absent when the
-   *  message is not voice, or when the upload has not (yet) succeeded. */
+  /** Reference to a voice message's recorded audio, persisted best-effort
+   *  OUTSIDE the session node so clips never bloat session reads: the
+   *  top-level RTDB path `voiceClips/{room}/{timestamp}` (children 0..n-1 are
+   *  `data:audio/wav` URIs, one per dictation), or a public download URL on
+   *  the Supabase backend. Absent when the message is not voice. */
   audioURL?: string;
   timestamp: number;
 }

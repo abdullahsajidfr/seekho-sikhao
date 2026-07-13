@@ -152,6 +152,7 @@ export default function StudentApp({ roomCode, studentName, isNew, onExit }: Pro
           roomCode={roomCode}
           studentName={studentName}
           isNew={isNew}
+          suppressOverlays={smileyometerQuestion != null}
           onLogout={requestLogout}
           onSelect={async (s) => {
             if (session?.chatHistory && !archivingRef.current) {
@@ -223,7 +224,11 @@ export default function StudentApp({ roomCode, studentName, isNew, onExit }: Pro
         />
       )}
 
-      {showLogout && (
+      {/* Suppressed (not dismissed — showLogout state persists so the modal
+          reappears) while a smileyometer question is active: iOS cannot present
+          a second native Modal over one already showing, so the admin-pushed
+          survey must be the only persistent Modal mounted or it never appears. */}
+      {showLogout && smileyometerQuestion == null && (
         <EndSessionModal
           roomCode={roomCode}
           onLoggedOut={() => { setLocalLogout(false); onExit(); }}

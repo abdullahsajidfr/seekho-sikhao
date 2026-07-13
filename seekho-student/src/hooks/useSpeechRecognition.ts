@@ -15,9 +15,11 @@ type SpeechState = 'idle' | 'listening' | 'transcribing' | 'done' | 'error';
 /**
  * Safety valve: never leave the mic "listening" forever (e.g. the child taps mic
  * and walks away). After this we auto-stop and transcribe so the UI can never
- * wedge on the waveform.
+ * wedge on the waveform. 60s of 16 kHz/16-bit mono WAV is ~1.9 MB (~2.6 MB as
+ * base64) — safely under both Vercel's 4.5 MB request-body limit for the STT
+ * call and the RTDB voice-clip persistence cap; a 120s cap breached both.
  */
-const MAX_LISTEN_MS = 120_000;
+const MAX_LISTEN_MS = 60_000;
 
 /**
  * Record a short WAV clip (16 kHz mono — small and Gemini-friendly) so the

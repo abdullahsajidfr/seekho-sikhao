@@ -68,11 +68,14 @@ export default function ChatInputBar({ roomCode, initialMode, onSend, onInputFoc
 
   // Voice provenance for the text currently in the box: when the child dictates,
   // we drop the transcript into the editable input (so they can review/edit) but
-  // remember it came from the mic — and hold onto the recorded clip — so the sent
-  // message is a distinguishable `voice` message carrying its audio. Refs (not
-  // state) because they're only read at send time and must not trigger renders.
-  const voiceOriginatedRef = useRef(false);
-  const voiceAudioUriRef = useRef<string | null>(null);
+  // remember it came from the mic. `voiceClipsRef` accumulates EVERY clip that
+  // contributed (a child may dictate twice into one message), and
+  // `voiceTranscriptRef` keeps the ORIGINAL dictated words — immutable under
+  // editing — so the persisted audio↔transcript pairing stays truthful even if
+  // the child rewrites the text before sending. Refs (not state) because they're
+  // only read at send time and must not trigger renders.
+  const voiceClipsRef = useRef<string[]>([]);
+  const voiceTranscriptRef = useRef('');
 
   useEffect(() => {
     if (initialMode === 'voice') start();
@@ -88,10 +91,12 @@ export default function ChatInputBar({ roomCode, initialMode, onSend, onInputFoc
     if (srState === 'done') {
       if (transcript) {
         setText((prev) => (prev.trim() ? `${prev.trim()} ${transcript}` : transcript));
-        // Mark this text as voice-originated and remember the clip to upload, so
-        // it is sent as a `voice` message even after the child edits the words.
-        voiceOriginatedRef.current = true;
-        voiceAudioUriRef.current = audioUri ?? null;
+        // Accumulate provenance: append this dictation's clip and words so a
+        // second dictation adds to (never replaces) the first.
+        if (audioUri) voiceClipsRef.current.push(audioUri);
+        voiceTranscriptRef.current = voiceTranscriptRef.current
+          ? `${voiceTranscriptRef.current} ${transcript}`
+          : transcript;
       }
       reset();
     } else if (srState === 'error') {
@@ -118,8 +123,8 @@ export default function ChatInputBar({ roomCode, initialMode, onSend, onInputFoc
   function handleChangeText(value: string) {
     setText(value);
     if (!value.trim()) {
-      voiceOriginatedRef.current = false;
-      voiceAudioUriRef.current = null;
+      voiceClipsRef.current = [];
+      voiceTranscriptRef.current = '';
     }
   }
 
@@ -129,16 +134,21 @@ export default function ChatInputBar({ roomCode, initialMode, onSend, onInputFoc
     if (!trimmed) return;
     logTap('student:send');
     logInput('student:chat-message', trimmed);
-    if (voiceOriginatedRef.current) {
-      // Voice-originated: send as a `voice` message with the transcript + the
-      // recorded clip (uploaded best-effort in sendStudentMessage).
-      onSend({ text: trimmed, type: 'voice', voiceTranscript: trimmed, audioUri: voiceAudioUriRef.current ?? undefined });
+    if (voiceTranscriptRef.current) {
+      // Voice-originated: `text` is whatever the child edited it into, while
+      // voiceTranscript stays the ORIGINAL dictation matching the clips.
+      onSend({
+        text: trimmed,
+        type: 'voice',
+        voiceTranscript: voiceTranscriptRef.current,
+        audioUris: [...voiceClipsRef.current],
+      });
     } else {
       onSend({ text: trimmed, type: 'text' });
     }
     setText('');
-    voiceOriginatedRef.current = false;
-    voiceAudioUriRef.current = null;
+    voiceClipsRef.current = [];
+    voiceTranscriptRef.current = '';
   }
 
   function finishVoice() {

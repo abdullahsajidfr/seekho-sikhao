@@ -67,7 +67,8 @@ async function callGeminiText(apiKey: string, parts: unknown[]): Promise<{ text:
 
   let model = GEMINI_MODEL;
   let response = await call(model);
-  if (response.status === 404 || response.status === 429) {
+  if (response.status >= 500) response = await call(model); // one retry on transient 5xx
+  if (response.status === 404 || response.status === 429 || response.status >= 500) {
     model = GEMINI_FALLBACK_MODEL;
     response = await call(model);
   }

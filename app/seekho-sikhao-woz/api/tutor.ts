@@ -372,7 +372,13 @@ async function callGemini(systemPrompt: string, turns: Turn[], apiKey: string): 
   // quota is exhausted (429) — the fallback model has a SEPARATE free-tier quota
   // bucket, so read-aloud/hint/submit keep working when gemini-2.5-flash is
   // rate-limited during heavy testing. (Durable fix: enable billing on the key.)
-  if (res.status === 404 || res.status === 429) {
+  // Transient Gemini 5xx: retry the SAME model once before falling back —
+  // observed in testing (two 500s ~6s apart, identical request then succeeded).
+  if (res.status >= 500) {
+    console.warn(`[tutor] gemini model ${model} ${res.status} — retrying once`);
+    res = await call(model);
+  }
+  if (res.status === 404 || res.status === 429 || res.status >= 500) {
     console.warn(`[tutor] gemini model ${model} ${res.status} — falling back to ${GEMINI_FALLBACK_MODEL}`);
     model = GEMINI_FALLBACK_MODEL;
     res = await call(model);
